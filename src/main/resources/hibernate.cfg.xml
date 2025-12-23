@@ -24,6 +24,12 @@
       <mapping class="com.wigerlabs.wikka_lk.entity.ProductVariant"/>
       <mapping class="com.wigerlabs.wikka_lk.entity.ProductImages"/>
       <mapping class="com.wigerlabs.wikka_lk.entity.Color"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Cart"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.CartItem"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.ShippingMethod"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.PaymentDetails"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Order"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.OrderItem"/>
 
   </session-factory>
 </hibernate-configuration>
