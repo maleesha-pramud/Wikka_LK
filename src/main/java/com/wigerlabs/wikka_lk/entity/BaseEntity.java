@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public class BaseEntity implements Serializable {
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, nullable = false)
+    @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime updatedAt;
 
     public LocalDateTime getCreatedAt() {

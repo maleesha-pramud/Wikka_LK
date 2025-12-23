@@ -30,6 +30,7 @@
       <mapping class="com.wigerlabs.wikka_lk.entity.PaymentDetails"/>
       <mapping class="com.wigerlabs.wikka_lk.entity.Order"/>
       <mapping class="com.wigerlabs.wikka_lk.entity.OrderItem"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Reviews"/>
 
   </session-factory>
 </hibernate-configuration>

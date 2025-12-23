@@ -32,7 +32,7 @@ public class User extends BaseEntity {
     @JoinColumn(name = "user_role_id", nullable = false)
     private UserRole userRole;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "seller_bank_details_id")
     private SellerBankDetails sellerBankDetails;
 
