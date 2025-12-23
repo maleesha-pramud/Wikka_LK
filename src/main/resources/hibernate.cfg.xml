@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+      <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+      <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+      <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/wikka_lk?useSSL=false&amp;allowPublicKeyRetrieval=true</property>
+      <property name="hibernate.connection.username">root</property>
+      <property name="hibernate.connection.password">maleesha@2005</property>
+      <property name="hibernate.hbm2ddl.auto">update</property>
+      <property name="hibernate.show_sql">true</property>
+
+      <mapping class="com.wigerlabs.wikka_lk.entity.UserRole"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Status"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.SellerBankDetails"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.User"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Brand"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Model"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.ProductCondition"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Category"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Product"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.ProductVariant"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.ProductImages"/>
+      <mapping class="com.wigerlabs.wikka_lk.entity.Color"/>
+
+  </session-factory>
+</hibernate-configuration>
