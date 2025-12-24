@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "status")
+@NamedQuery(name = "Status.findByValue",
+        query = "FROM Status s WHERE s.value=:value")
 public class Status extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,12 +31,22 @@ public class Status extends BaseEntity {
     }
 
     public enum Type {
-        ACTIVE,
-        INACTIVE,
-        PENDING,
-        BLOCKED,
-        VERIFIED,
-        CANCELED,
-        COMPLETED
+        ACTIVE("active"),
+        INACTIVE("inactive"),
+        PENDING("pending"),
+        BLOCKED("blocked"),
+        VERIFIED("verified"),
+        CANCELED("canceled"),
+        COMPLETED("completed");
+
+        private final String value;
+
+        Type(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }

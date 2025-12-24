@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "user_role")
+@NamedQuery(name = "UserRole.findById",
+        query = "FROM UserRole ur WHERE ur.id=:id")
 public class UserRole extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
