@@ -136,14 +136,12 @@ public class UserService {
 
 
         // Validate description (optional field)
-        else if(userDTO.getDescription() != null && !userDTO.getDescription().isBlank()) {
-            if(userDTO.getDescription().trim().length() > 500) {
-                message = "Description must not exceed 500 characters.";
-            } else if(containsSqlInjection(userDTO.getDescription())) {
-                message = "Description contains potentially malicious content.";
-            } else if(containsXSS(userDTO.getDescription())) {
-                message = "Description contains potentially malicious scripts.";
-            }
+        else if(userDTO.getDescription().trim().length() > 500) {
+            message = "Description must not exceed 500 characters.";
+        } else if(containsSqlInjection(userDTO.getDescription())) {
+            message = "Description contains potentially malicious content.";
+        } else if(containsXSS(userDTO.getDescription())) {
+            message = "Description contains potentially malicious scripts.";
         }
 
         else {
