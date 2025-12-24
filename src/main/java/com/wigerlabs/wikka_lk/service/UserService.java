@@ -5,6 +5,7 @@ import com.wigerlabs.wikka_lk.dto.UserDTO;
 import com.wigerlabs.wikka_lk.entity.Status;
 import com.wigerlabs.wikka_lk.entity.User;
 import com.wigerlabs.wikka_lk.entity.UserRole;
+import com.wigerlabs.wikka_lk.util.AppUtil;
 import com.wigerlabs.wikka_lk.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -160,6 +161,9 @@ public class UserService {
                 newUser.setPassword(userDTO.getPassword()); // In real applications, hash the password before storing
                 newUser.setDescription(userDTO.getDescription() != null ? userDTO.getDescription().trim() : null);
 
+                String verificationCode = AppUtil.generateCode();
+                newUser.setVerificationCode(verificationCode);
+
                 Status pendingStatus = hibernateSession.createNamedQuery("Status.findByValue", Status.class)
                         .setParameter("value", Status.Type.PENDING.getValue())
                         .getSingleResult();
@@ -181,7 +185,8 @@ public class UserService {
                         hibernateSession.persist(newUser);
                         transaction.commit();
                         status = true;
-                        message = "User created successfully.";
+                        message = "Account created successfully. Verification code has been sent to the your email. " +
+                                "Please verify it for activate your account!";
                     } catch (Exception e) {
                         if (transaction != null) {
                             transaction.rollback();

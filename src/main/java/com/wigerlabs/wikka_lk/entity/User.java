@@ -38,6 +38,9 @@ public class User extends BaseEntity {
     @JoinColumn(name = "seller_bank_details_id")
     private SellerBankDetails sellerBankDetails;
 
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
     public int getId() {
         return id;
     }
@@ -108,5 +111,13 @@ public class User extends BaseEntity {
 
     public void setSellerBankDetails(SellerBankDetails sellerBankDetails) {
         this.sellerBankDetails = sellerBankDetails;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 }

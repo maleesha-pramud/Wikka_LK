@@ -12,6 +12,7 @@ public class UserDTO implements Serializable {
     private int statusId = 3;
     private int userRoleId = 3;
     private int sellerBankDetailsId;
+    private String verificationCode;
 
     public UserDTO() {
     }
@@ -95,5 +96,13 @@ public class UserDTO implements Serializable {
 
     public void setSellerBankDetailsId(int sellerBankDetailsId) {
         this.sellerBankDetailsId = sellerBankDetailsId;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 }
