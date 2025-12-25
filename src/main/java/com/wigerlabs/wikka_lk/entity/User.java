@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 @Table(name = "user")
 @NamedQuery(name = "User.findByEmail",
         query = "FROM User u WHERE u.email=:email")
+@NamedQuery(name = "User.findByEmailAndPassword",
+        query = "FROM User u WHERE u.email=:email AND u.password=:password")
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

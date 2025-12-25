@@ -7,6 +7,9 @@ import com.wigerlabs.wikka_lk.entity.User;
 import com.wigerlabs.wikka_lk.entity.UserRole;
 import com.wigerlabs.wikka_lk.util.AppUtil;
 import com.wigerlabs.wikka_lk.util.HibernateUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.core.Context;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -201,6 +204,64 @@ public class UserService {
 
         responseObject.addProperty("status", status);
         responseObject.addProperty("message", message);
+
+        return responseObject.toString();
+    }
+
+    public String userLogin(UserDTO userDTO, @Context HttpServletRequest request) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+        JsonObject dataObject = new JsonObject();
+
+        // Basic validation
+        if(userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
+            message = "Email is required.";
+        } else if(userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+            message = "Password is required.";
+        } else {
+            Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+
+            // First check if email is registered
+            User existingUser = hibernateSession.createNamedQuery("User.findByEmail", User.class)
+                    .setParameter("email", userDTO.getEmail().trim())
+                    .getSingleResultOrNull();
+
+            if (existingUser == null) {
+                message = "No account found with this email address.";
+                hibernateSession.close();
+            } else {
+                // Email exists, now check password
+                User user = hibernateSession.createNamedQuery("User.findByEmailAndPassword", User.class)
+                        .setParameter("email", userDTO.getEmail().trim())
+                        .setParameter("password", userDTO.getPassword()) // In real applications, hash the password before comparing
+                        .getSingleResultOrNull();
+                hibernateSession.close();
+
+                if (user != null) {
+                    HttpSession httpSession = request.getSession();
+                    httpSession.setAttribute("user", user);
+                    status = true;
+                    message = "Login successful.";
+                    dataObject.add("user", AppUtil.GSON.toJsonTree(new UserDTO(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        null,
+                        user.getAddress(),
+                        user.getDescription()
+                    )));
+                } else {
+                    message = "Incorrect password.";
+                }
+            }
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        if(!dataObject.isEmpty()) {
+            responseObject.add("data", dataObject);
+        }
 
         return responseObject.toString();
     }
