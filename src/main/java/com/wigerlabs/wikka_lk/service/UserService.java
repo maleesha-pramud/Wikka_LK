@@ -211,55 +211,61 @@ public class UserService {
     public String userLogin(UserDTO userDTO, @Context HttpServletRequest request) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
-        String message = "";
+        String message;
         JsonObject dataObject = new JsonObject();
 
         // Basic validation
-        if(userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
+        if (userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
             message = "Email is required.";
-        } else if(userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+        } else if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
             message = "Password is required.";
         } else {
-            Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
-
-            // First check if email is registered
-            User existingUser = hibernateSession.createNamedQuery("User.findByEmail", User.class)
-                    .setParameter("email", userDTO.getEmail().trim())
-                    .getSingleResultOrNull();
-
-            if (existingUser == null) {
-                message = "No account found with this email address.";
-                hibernateSession.close();
-            } else {
-                // Email exists, now check password
-                User user = hibernateSession.createNamedQuery("User.findByEmailAndPassword", User.class)
+            try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                // First check if email is registered
+                User existingUser = hibernateSession.createNamedQuery("User.findByEmail", User.class)
                         .setParameter("email", userDTO.getEmail().trim())
-                        .setParameter("password", userDTO.getPassword()) // In real applications, hash the password before comparing
                         .getSingleResultOrNull();
-                hibernateSession.close();
 
-                if (user != null) {
-                    HttpSession httpSession = request.getSession();
-                    httpSession.setAttribute("user", user);
-                    status = true;
-                    message = "Login successful.";
-                    dataObject.add("user", AppUtil.GSON.toJsonTree(new UserDTO(
-                        user.getId(),
-                        user.getName(),
-                        user.getEmail(),
-                        null,
-                        user.getAddress(),
-                        user.getDescription()
-                    )));
+                if (existingUser == null) {
+                    message = "No account found with this email address.";
                 } else {
-                    message = "Incorrect password.";
+                    // Email exists, now check password
+                    User user = hibernateSession.createNamedQuery("User.findByEmailAndPassword", User.class)
+                            .setParameter("email", userDTO.getEmail().trim())
+                            .setParameter("password", userDTO.getPassword()) // In real applications, hash the password before comparing
+                            .getSingleResultOrNull();
+
+                    if (user != null) {
+                        // Access lazy-loaded properties while the session is open
+                        user.getStatus().getValue(); // Ensure lazy loading
+                        user.getUserRole().getName(); // Ensure lazy loading
+
+                        HttpSession httpSession = request.getSession();
+                        httpSession.setAttribute("user", user);
+                        status = true;
+                        message = "Login successful.";
+                        dataObject.add("user", AppUtil.GSON.toJsonTree(new UserDTO(
+                                user.getId(),
+                                user.getName(),
+                                user.getEmail(),
+                                user.getAddress(),
+                                user.getDescription(),
+                                user.getStatus().getId(),
+                                user.getStatus().getValue(),
+                                user.getUserRole().getId(),
+                                user.getUserRole().getName(),
+                                user.getVerificationCode()
+                        )));
+                    } else {
+                        message = "Incorrect password.";
+                    }
                 }
             }
         }
 
         responseObject.addProperty("status", status);
         responseObject.addProperty("message", message);
-        if(!dataObject.isEmpty()) {
+        if (!dataObject.isEmpty()) {
             responseObject.add("data", dataObject);
         }
 

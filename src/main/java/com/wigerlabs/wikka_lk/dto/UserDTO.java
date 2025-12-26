@@ -10,20 +10,25 @@ public class UserDTO implements Serializable {
     private String address;
     private String description;
     private int statusId = 3;
+    private String status;
     private int userRoleId = 3;
-    private int sellerBankDetailsId;
+    private String userRole;
     private String verificationCode;
 
     public UserDTO() {
     }
 
-    public UserDTO(int id, String name, String email, String password, String address, String description) {
+    public UserDTO(int id, String name, String email, String address, String description, int statusId, String status, int userRoleId, String userRole, String verificationCode) {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.password = password;
         this.address = address;
         this.description = description;
+        this.statusId = statusId;
+        this.status = status;
+        this.userRoleId = userRoleId;
+        this.userRole = userRole;
+        this.verificationCode = verificationCode;
     }
 
     public int getId() {
@@ -88,14 +93,6 @@ public class UserDTO implements Serializable {
 
     public void setUserRoleId(int userRoleId) {
         this.userRoleId = userRoleId;
-    }
-
-    public int getSellerBankDetailsId() {
-        return sellerBankDetailsId;
-    }
-
-    public void setSellerBankDetailsId(int sellerBankDetailsId) {
-        this.sellerBankDetailsId = sellerBankDetailsId;
     }
 
     public String getVerificationCode() {

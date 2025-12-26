@@ -14,6 +14,7 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/user")
 public class UserController {
+    // User Registration
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -23,6 +24,7 @@ public class UserController {
         return Response.ok().entity(responseJson).build();
     }
 
+    // User Login
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -32,4 +34,6 @@ public class UserController {
         String responseJson = new UserService().userLogin(userDTO, request);
         return Response.ok().entity(responseJson).build();
     }
+
+
 }
