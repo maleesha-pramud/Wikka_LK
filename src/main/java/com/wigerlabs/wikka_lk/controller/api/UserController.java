@@ -1,13 +1,12 @@
 package com.wigerlabs.wikka_lk.controller.api;
 
+import com.wigerlabs.wikka_lk.annotation.IsLoggedIn;
 import com.wigerlabs.wikka_lk.dto.UserDTO;
 import com.wigerlabs.wikka_lk.service.UserService;
 import com.wigerlabs.wikka_lk.util.AppUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -35,5 +34,17 @@ public class UserController {
         return Response.ok().entity(responseJson).build();
     }
 
-
+    @IsLoggedIn
+    @Path("/logout")
+    @GET
+    public Response logout(@Context HttpServletRequest request) {
+        HttpSession httpSession = request.getSession(false);
+        System.out.println(httpSession != null && httpSession.getAttribute("user") != null);
+        if (httpSession != null && httpSession.getAttribute("user") != null) {
+            httpSession.invalidate();
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
 }
