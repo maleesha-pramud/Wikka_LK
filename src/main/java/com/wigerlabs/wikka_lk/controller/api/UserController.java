@@ -34,12 +34,12 @@ public class UserController {
         return Response.ok().entity(responseJson).build();
     }
 
+    // User Logout
     @IsLoggedIn
     @Path("/logout")
     @GET
     public Response logout(@Context HttpServletRequest request) {
         HttpSession httpSession = request.getSession(false);
-        System.out.println(httpSession != null && httpSession.getAttribute("user") != null);
         if (httpSession != null && httpSession.getAttribute("user") != null) {
             httpSession.invalidate();
             return Response.status(Response.Status.OK).build();

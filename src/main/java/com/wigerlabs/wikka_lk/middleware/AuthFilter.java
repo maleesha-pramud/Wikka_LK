@@ -24,11 +24,10 @@ public class AuthFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext containerRequestContext) throws IOException {
         HttpSession session = request.getSession(false);
-        System.out.println(request.getContextPath());
         if(session == null || session.getAttribute("user") == null) {
             containerRequestContext
                     .abortWith(Response.status(Response.Status.TEMPORARY_REDIRECT)
-                    .location(URI.create(request.getContextPath() + "/login.html")).build());
+                    .location(URI.create(request.getContextPath() + "/login")).build());
         }
     }
 }
