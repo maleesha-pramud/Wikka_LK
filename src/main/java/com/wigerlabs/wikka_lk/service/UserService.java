@@ -10,6 +10,7 @@ import com.wigerlabs.wikka_lk.util.HibernateUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -17,43 +18,43 @@ import java.util.regex.Pattern;
 
 /**
  * User Service with comprehensive security validation
- *
+ * <p>
  * Security Features Implemented:
- *
+ * <p>
  * 1. NAME VALIDATION:
- *    - Required field validation
- *    - Length constraints: 2-100 characters
- *    - Character whitelist: only letters, spaces, hyphens, apostrophes
- *    - SQL injection prevention
- *    - XSS attack prevention
- *
+ * - Required field validation
+ * - Length constraints: 2-100 characters
+ * - Character whitelist: only letters, spaces, hyphens, apostrophes
+ * - SQL injection prevention
+ * - XSS attack prevention
+ * <p>
  * 2. EMAIL VALIDATION:
- *    - Required field validation
- *    - RFC-compliant email format validation
- *    - Length constraint: max 254 characters (RFC 5321)
- *    - SQL injection prevention
- *
+ * - Required field validation
+ * - RFC-compliant email format validation
+ * - Length constraint: max 254 characters (RFC 5321)
+ * - SQL injection prevention
+ * <p>
  * 3. PASSWORD VALIDATION:
- *    - Required field validation
- *    - Length constraints: 8-128 characters
- *    - Complexity requirements:
- *      * At least one uppercase letter
- *      * At least one lowercase letter
- *      * At least one digit
- *      * At least one special character (@$!%*?&#^()_+=-[]{}|;:',.<>)
- *    - Common password detection and blocking
- *
+ * - Required field validation
+ * - Length constraints: 8-128 characters
+ * - Complexity requirements:
+ * * At least one uppercase letter
+ * * At least one lowercase letter
+ * * At least one digit
+ * * At least one special character (@$!%*?&#^()_+=-[]{}|;:',.<>)
+ * - Common password detection and blocking
+ * <p>
  * 4. ADDRESS VALIDATION:
- *    - Required field validation
- *    - Length constraint: max 500 characters
- *    - SQL injection prevention
- *    - XSS attack prevention
- *
+ * - Required field validation
+ * - Length constraint: max 500 characters
+ * - SQL injection prevention
+ * - XSS attack prevention
+ * <p>
  * 5. DESCRIPTION VALIDATION (Optional):
- *    - Length constraint: max 500 characters
- *    - SQL injection prevention
- *    - XSS attack prevention
- *
+ * - Length constraint: max 500 characters
+ * - SQL injection prevention
+ * - XSS attack prevention
+ * <p>
  * Additional Security Measures:
  * - Pattern-based attack detection and rejection
  * - Whitespace trimming
@@ -63,26 +64,26 @@ public class UserService {
 
     // Regex patterns for validation
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
     );
 
     private static final Pattern NAME_PATTERN = Pattern.compile(
-        "^[a-zA-Z\\s'-]{2,20}$"
+            "^[a-zA-Z\\s'-]{2,20}$"
     );
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()_+=\\-\\[\\]{}|;:',.<>]).{8,128}$"
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()_+=\\-\\[\\]{}|;:',.<>]).{8,128}$"
     );
 
     // SQL Injection and XSS dangerous patterns
     private static final Pattern SQL_INJECTION_PATTERN = Pattern.compile(
-        ".*(;|--|'|\"|\\bOR\\b|\\bAND\\b|\\bUNION\\b|\\bSELECT\\b|\\bDROP\\b|\\bINSERT\\b|\\bUPDATE\\b|\\bDELETE\\b).*",
-        Pattern.CASE_INSENSITIVE
+            ".*(;|--|'|\"|\\bOR\\b|\\bAND\\b|\\bUNION\\b|\\bSELECT\\b|\\bDROP\\b|\\bINSERT\\b|\\bUPDATE\\b|\\bDELETE\\b).*",
+            Pattern.CASE_INSENSITIVE
     );
 
     private static final Pattern XSS_PATTERN = Pattern.compile(
-        ".*(<script|<iframe|javascript:|onerror=|onload=|<object|<embed).*",
-        Pattern.CASE_INSENSITIVE
+            ".*(<script|<iframe|javascript:|onerror=|onload=|<object|<embed).*",
+            Pattern.CASE_INSENSITIVE
     );
 
     public String createUser(UserDTO userDTO) {
@@ -91,64 +92,62 @@ public class UserService {
         String message = "";
 
         // Validate name
-        if(userDTO.getName() == null || userDTO.getName().isBlank()) {
+        if (userDTO.getName() == null || userDTO.getName().isBlank()) {
             message = "Name is required.";
-        } else if(userDTO.getName().trim().length() < 2) {
+        } else if (userDTO.getName().trim().length() < 2) {
             message = "Name must be at least 2 characters long.";
-        } else if(userDTO.getName().trim().length() > 20) {
+        } else if (userDTO.getName().trim().length() > 20) {
             message = "Name must not exceed 20 characters.";
-        } else if(!NAME_PATTERN.matcher(userDTO.getName().trim()).matches()) {
+        } else if (!NAME_PATTERN.matcher(userDTO.getName().trim()).matches()) {
             message = "Name contains invalid characters. Only letters, spaces, hyphens, and apostrophes are allowed.";
-        } else if(containsSqlInjection(userDTO.getName())) {
+        } else if (containsSqlInjection(userDTO.getName())) {
             message = "Name contains potentially malicious content.";
-        } else if(containsXSS(userDTO.getName())) {
+        } else if (containsXSS(userDTO.getName())) {
             message = "Name contains potentially malicious scripts.";
         }
 
         // Validate email
-        else if(userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
+        else if (userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
             message = "Email is required.";
-        } else if(userDTO.getEmail().trim().length() > 254) {
+        } else if (userDTO.getEmail().trim().length() > 254) {
             message = "Email must not exceed 254 characters.";
-        } else if(!EMAIL_PATTERN.matcher(userDTO.getEmail().trim()).matches()) {
+        } else if (!EMAIL_PATTERN.matcher(userDTO.getEmail().trim()).matches()) {
             message = "Invalid email format.";
-        } else if(containsSqlInjection(userDTO.getEmail())) {
+        } else if (containsSqlInjection(userDTO.getEmail())) {
             message = "Email contains potentially malicious content.";
         }
 
         // Validate address
-        else if(userDTO.getAddress() == null || userDTO.getAddress().isBlank()) {
+        else if (userDTO.getAddress() == null || userDTO.getAddress().isBlank()) {
             message = "Address is required.";
-        } else if(userDTO.getAddress().trim().length() > 500) {
+        } else if (userDTO.getAddress().trim().length() > 500) {
             message = "Address must not exceed 500 characters.";
-        } else if(containsSqlInjection(userDTO.getAddress())) {
+        } else if (containsSqlInjection(userDTO.getAddress())) {
             message = "Address contains potentially malicious content.";
-        } else if(containsXSS(userDTO.getAddress())) {
+        } else if (containsXSS(userDTO.getAddress())) {
             message = "Address contains potentially malicious scripts.";
         }
 
         // Validate password
-        else if(userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+        else if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
             message = "Password is required.";
-        } else if(userDTO.getPassword().length() < 8) {
+        } else if (userDTO.getPassword().length() < 8) {
             message = "Password must be at least 8 characters long.";
-        } else if(userDTO.getPassword().length() > 128) {
+        } else if (userDTO.getPassword().length() > 128) {
             message = "Password must not exceed 128 characters.";
-        } else if(!PASSWORD_PATTERN.matcher(userDTO.getPassword()).matches()) {
+        } else if (!PASSWORD_PATTERN.matcher(userDTO.getPassword()).matches()) {
             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.";
         }
 
 
         // Validate description (optional field)
-        else if(userDTO.getDescription().trim().length() > 500) {
+        else if (userDTO.getDescription().trim().length() > 500) {
             message = "Description must not exceed 500 characters.";
-        } else if(containsSqlInjection(userDTO.getDescription())) {
+        } else if (containsSqlInjection(userDTO.getDescription())) {
             message = "Description contains potentially malicious content.";
-        } else if(containsXSS(userDTO.getDescription())) {
+        } else if (containsXSS(userDTO.getDescription())) {
             message = "Description contains potentially malicious scripts.";
-        }
-
-        else {
+        } else {
             // All validations passed
             Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
             User singleUser = hibernateSession.createNamedQuery("User.findByEmail", User.class)
@@ -242,6 +241,7 @@ public class UserService {
 
                         HttpSession httpSession = request.getSession();
                         httpSession.setAttribute("user", user);
+
                         status = true;
                         message = "Login successful.";
                         dataObject.add("user", AppUtil.GSON.toJsonTree(new UserDTO(
@@ -272,11 +272,90 @@ public class UserService {
         return responseObject.toString();
     }
 
+    public String updateUser(UserDTO userDTO, @Context HttpServletRequest request) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message;
+        JsonObject dataObject = new JsonObject();
+
+        if (userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
+            message = "Email is required.";
+        } else if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+            message = "Password is required.";
+        } else {
+            try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                // First check if email is registered
+                User existingUser = hibernateSession.createNamedQuery("User.findByEmail", User.class)
+                        .setParameter("email", userDTO.getEmail().trim())
+                        .getSingleResultOrNull();
+                if (existingUser == null) {
+                    message = "No account found with this email address.";
+                } else {
+                    // Email exists, now check password
+                    User user = hibernateSession.createNamedQuery("User.findByEmailAndPassword", User.class)
+                            .setParameter("email", userDTO.getEmail().trim())
+                            .setParameter("password", userDTO.getPassword()) // In real applications, hash the password before comparing
+                            .getSingleResultOrNull();
+                    if (user != null) {
+                        // Access lazy-loaded properties while the session is open
+                        user.getStatus().getValue();
+                        user.getUserRole().getName();
+
+                        HttpSession httpSession = request.getSession();
+                        httpSession.setAttribute("user", user);
+                        status = true;
+                        message = "Login successful.";
+                        dataObject.add("user", AppUtil.GSON.toJsonTree(new UserDTO(
+                                user.getId(),
+                                user.getName(),
+                                user.getEmail(),
+                                user.getAddress(),
+                                user.getDescription(),
+                                user.getStatus().getId(),
+                                user.getStatus().getValue(),
+                                user.getUserRole().getId(),
+                                user.getUserRole().getName(),
+                                user.getVerificationCode()
+                        )));
+                    } else {
+                        message = "Incorrect password.";
+                    }
+                }
+            }
+        }
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        if (!dataObject.isEmpty()) {
+            responseObject.add("data", dataObject);
+        }
+
+        return responseObject.toString();
+    }
+
+    public String logoutUser(@Context HttpServletRequest request) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message;
+
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null && httpSession.getAttribute("user") != null) {
+            httpSession.invalidate();
+            status = true;
+            message = "Logout successful.";
+        } else {
+            message = "No user found.";
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        return responseObject.toString();
+    }
+
     /**
      * Check for SQL injection patterns
      */
     private boolean containsSqlInjection(String input) {
-        if(input == null) return false;
+        if (input == null) return false;
         return SQL_INJECTION_PATTERN.matcher(input).matches();
     }
 
@@ -284,7 +363,7 @@ public class UserService {
      * Check for XSS attack patterns
      */
     private boolean containsXSS(String input) {
-        if(input == null) return false;
+        if (input == null) return false;
         return XSS_PATTERN.matcher(input).matches();
     }
 }

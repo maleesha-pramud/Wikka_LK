@@ -8,7 +8,7 @@ public class UserDTO implements Serializable {
     private String email;
     private String password;
     private String address;
-    private String description;
+    private String description = "";
     private int statusId = 3;
     private String status;
     private int userRoleId = 3;
