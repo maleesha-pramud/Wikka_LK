@@ -5,7 +5,6 @@ import com.wigerlabs.wikka_lk.dto.UserDTO;
 import com.wigerlabs.wikka_lk.service.UserService;
 import com.wigerlabs.wikka_lk.util.AppUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -49,6 +48,7 @@ public class UserController {
     @IsLoggedIn
     @Path("/logout")
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public Response logout(@Context HttpServletRequest request) {
         String responseJson  = new UserService().logoutUser(request);
         return Response.ok().entity(responseJson).build();
