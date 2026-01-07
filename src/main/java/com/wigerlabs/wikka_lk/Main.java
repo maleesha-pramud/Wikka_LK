@@ -2,15 +2,12 @@ package com.wigerlabs.wikka_lk;
 
 import com.wigerlabs.wikka_lk.config.AppConfig;
 import com.wigerlabs.wikka_lk.service.DataInitializationService;
-import com.wigerlabs.wikka_lk.listener.ContextPathListener;
 import com.wigerlabs.wikka_lk.util.HibernateUtil;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.SessionFactory;
-
-import java.io.File;
 
 public class Main {
 
@@ -23,11 +20,13 @@ public class Main {
             tomcat.setPort(SERVER_PORT);
             tomcat.getConnector();
 
-            Context context = tomcat.addWebapp(CONTEXT_PATH, new File("src/main/webapp").getAbsolutePath());
+            Context context = tomcat.addContext(CONTEXT_PATH, null);
             Tomcat.addServlet(context, "JerseyServlet", new ServletContainer(new AppConfig()));
             context.addServletMappingDecoded("/api/*", "JerseyServlet");
 
-            context.addApplicationListener(ContextPathListener.class.getName());
+//            context.addApplicationListener(ContextPathListener.class.getName());
+
+            SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
             // Initialize default data (user roles, etc.)
             DataInitializationService.initializeDefaultData();
