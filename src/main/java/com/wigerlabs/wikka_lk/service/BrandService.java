@@ -4,14 +4,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.wigerlabs.wikka_lk.dto.BrandDTO;
 import com.wigerlabs.wikka_lk.entity.Brand;
-import com.wigerlabs.wikka_lk.util.AppUtil;
 import com.wigerlabs.wikka_lk.util.HibernateUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Context;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 

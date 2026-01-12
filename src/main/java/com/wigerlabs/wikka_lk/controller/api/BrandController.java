@@ -1,8 +1,6 @@
 package com.wigerlabs.wikka_lk.controller.api;
 
 import com.wigerlabs.wikka_lk.dto.BrandDTO;
-import com.wigerlabs.wikka_lk.dto.UserDTO;
-import com.wigerlabs.wikka_lk.entity.Brand;
 import com.wigerlabs.wikka_lk.service.BrandService;
 import com.wigerlabs.wikka_lk.util.AppUtil;
 import jakarta.servlet.http.HttpServletRequest;
