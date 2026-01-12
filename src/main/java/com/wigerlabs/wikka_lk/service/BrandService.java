@@ -126,8 +126,8 @@ public class BrandService {
             }
         }
         
-        responseObject.addProperty("satus", status);
-        responseObject.addProperty("meesage", message);
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
 
         return responseObject.toString();
     }
