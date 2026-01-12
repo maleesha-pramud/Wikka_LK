@@ -1,7 +1,6 @@
 package com.wigerlabs.wikka_lk.util;
 
 import com.google.gson.Gson;
-
 import java.security.SecureRandom;
 
 public class AppUtil {
