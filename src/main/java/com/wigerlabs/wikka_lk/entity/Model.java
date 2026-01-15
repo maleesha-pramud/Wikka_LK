@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "model")
+@NamedQuery(name = "Model.findByName", query = "FROM Model m WHERE m.name=:name")
+@NamedQuery(name = "Model.findById", query = "From Model m WHERE m.id=:id")
 public class Model extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

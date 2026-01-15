@@ -1,7 +1,7 @@
 package com.wigerlabs.wikka_lk.controller.api;
 
-import com.wigerlabs.wikka_lk.dto.BrandDTO;
-import com.wigerlabs.wikka_lk.service.BrandService;
+import com.wigerlabs.wikka_lk.dto.ModelDTO;
+import com.wigerlabs.wikka_lk.service.ModelService;
 import com.wigerlabs.wikka_lk.util.AppUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
@@ -9,37 +9,37 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/brand")
-public class BrandController {
+@Path("/model")
+public class ModelController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addBrand(String jsonData) {
-        BrandDTO brandDTO = AppUtil.GSON.fromJson(jsonData, BrandDTO.class);
-        String responseJson = new BrandService().addBrand(brandDTO);
+    public Response addModel(String jsonData) {
+        ModelDTO modelDTO = AppUtil.GSON.fromJson(jsonData, ModelDTO.class);
+        String responseJson = new ModelService().addModel(modelDTO);
         return Response.ok().entity(responseJson).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllBrands() {
-        String responseJson = new BrandService().getAllBrands();
+    public Response getAllModels() {
+        String responseJson = new ModelService().getAllModels();
         return Response.ok().entity(responseJson).build();
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateBrand(String jsonData) {
-        BrandDTO brandDTO = AppUtil.GSON.fromJson(jsonData, BrandDTO.class);
-        String responseJson = new BrandService().updateBrand(brandDTO);
+    public Response updateModel(String jsonData) {
+        ModelDTO modelDTO = AppUtil.GSON.fromJson(jsonData, ModelDTO.class);
+        String responseJson = new ModelService().updateModel(modelDTO);
         return Response.ok().entity(responseJson).build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteBrand(@Context HttpServletRequest request) {
-        String responseJson = new BrandService().deleteBrand(request);
+    public Response deleteModel(@Context HttpServletRequest request) {
+        String responseJson = new ModelService().deleteModel(request);
         return Response.ok().entity(responseJson).build();
     }
 }

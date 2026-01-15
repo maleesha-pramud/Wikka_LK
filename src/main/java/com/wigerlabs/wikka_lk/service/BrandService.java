@@ -92,7 +92,40 @@ public class BrandService {
         return responseObject.toString();
     }
 
-    public String updateBrand(BrandDTO brandDTO, @Context HttpServletRequest request) {
+    public String getAllBrands() {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+        JsonArray dataArray = new JsonArray();
+
+        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+            List<Brand> brandList = hibernateSession.createQuery("FROM Brand", Brand.class).list();
+            for (Brand brand : brandList) {
+                JsonObject brandObj = new JsonObject();
+                brandObj.addProperty("id", brand.getId());
+                brandObj.addProperty("name", brand.getName());
+                if (brand.getCreatedAt() != null) {
+                    brandObj.addProperty("createdAt", brand.getCreatedAt().toString());
+                }
+                if (brand.getUpdatedAt() != null) {
+                    brandObj.addProperty("updatedAt", brand.getUpdatedAt().toString());
+                }
+                dataArray.add(brandObj);
+            }
+            status = true;
+            message = "Brands fetched successfully!";
+        } catch (Exception e) {
+            message = "Error occurred while fetching brands. " + e.getMessage();
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        responseObject.add("data", dataArray);
+
+        return responseObject.toString();
+    }
+
+    public String updateBrand(BrandDTO brandDTO) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
@@ -128,39 +161,6 @@ public class BrandService {
         
         responseObject.addProperty("status", status);
         responseObject.addProperty("message", message);
-
-        return responseObject.toString();
-    }
-
-    public String getAllBrands() {
-        JsonObject responseObject = new JsonObject();
-        boolean status = false;
-        String message = "";
-        JsonArray dataArray = new JsonArray();
-
-        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
-            List<Brand> brandList = hibernateSession.createQuery("FROM Brand", Brand.class).list();
-            for (Brand brand : brandList) {
-                JsonObject brandObj = new JsonObject();
-                brandObj.addProperty("id", brand.getId());
-                brandObj.addProperty("name", brand.getName());
-                if (brand.getCreatedAt() != null) {
-                    brandObj.addProperty("createdAt", brand.getCreatedAt().toString());
-                }
-                if (brand.getUpdatedAt() != null) {
-                    brandObj.addProperty("updatedAt", brand.getUpdatedAt().toString());
-                }
-                dataArray.add(brandObj);
-            }
-            status = true;
-            message = "Brands fetched successfully!";
-        } catch (Exception e) {
-            message = "Error occurred while fetching brands. " + e.getMessage();
-        }
-
-        responseObject.addProperty("status", status);
-        responseObject.addProperty("message", message);
-        responseObject.add("data", dataArray);
 
         return responseObject.toString();
     }
