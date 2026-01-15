@@ -79,7 +79,7 @@ public class BrandService {
                     if (transaction != null) {
                         transaction.rollback();
                     }
-                    message = "Error occurred while adding brand.";
+                    message = "Error occurred while adding brand. " + e.getMessage();
                 } finally {
                     hibernateSession.close();
                 }
@@ -147,11 +147,12 @@ public class BrandService {
                         status = true;
                         message = "Brand updated successfully!";
                         dataObject.addProperty("id", existingBrand.getId());
+                        dataObject.addProperty("name", existingBrand.getName());
                     } catch (Exception e) {
                         if (transaction != null) {
                             transaction.rollback();
                         }
-                        message = "Error occurred while updating brand.";
+                        message = "Error occurred while updating brand. " + e.getMessage();
                     } finally {
                         hibernateSession.close();
                     }
@@ -191,7 +192,7 @@ public class BrandService {
                             if (transaction != null) {
                                 transaction.rollback();
                             }
-                            message = "Error occurred while deleting brand.";
+                            message = "Error occurred while deleting brand. " + e.getMessage();
                         } finally {
                             hibernateSession.close();
                         }

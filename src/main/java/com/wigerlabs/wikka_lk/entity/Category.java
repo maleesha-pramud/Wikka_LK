@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "category")
+@NamedQuery(name = "Category.findById", query = "FROM Category c WHERE c.id=:id")
+@NamedQuery(name = "Category.findByName", query = "FROM Category c WHERE c.name=:name")
 public class Category extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,3 +30,4 @@ public class Category extends BaseEntity {
         this.name = name;
     }
 }
+
