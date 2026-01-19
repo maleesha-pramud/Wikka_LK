@@ -14,6 +14,9 @@ public class Category extends BaseEntity {
     @Column(name = "name", nullable = false, length = 45)
     private String name;
 
+    @Column(name = "icon", nullable = true)
+    private String icon;
+
     public int getId() {
         return id;
     }
@@ -28,6 +31,14 @@ public class Category extends BaseEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }
 

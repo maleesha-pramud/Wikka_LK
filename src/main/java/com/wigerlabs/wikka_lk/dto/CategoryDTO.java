@@ -5,13 +5,15 @@ import java.io.Serializable;
 public class CategoryDTO implements Serializable {
     private int id;
     private String name;
+    private String icon;
 
     public CategoryDTO() {
     }
 
-    public CategoryDTO(int id, String name) {
+    public CategoryDTO(int id, String name, String icon) {
         this.id = id;
         this.name = name;
+        this.icon = icon;
     }
 
     public int getId() {
@@ -28,5 +30,13 @@ public class CategoryDTO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

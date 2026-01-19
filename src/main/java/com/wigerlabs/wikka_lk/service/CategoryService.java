@@ -26,6 +26,8 @@ public class CategoryService {
             } else {
                 Category newCategory = new Category();
                 newCategory.setName(categoryDTO.getName());
+                newCategory.setIcon(categoryDTO.getIcon());
+                System.out.println("Category to add: " + newCategory.getName() + ", Icon: " + newCategory.getIcon());
 
                 Transaction transaction = hibernateSession.beginTransaction();
                 try {
@@ -62,6 +64,7 @@ public class CategoryService {
                 JsonObject categoryObj = new JsonObject();
                 categoryObj.addProperty("id", category.getId());
                 categoryObj.addProperty("name", category.getName());
+                categoryObj.addProperty("icon", category.getIcon());
                 if (category.getCreatedAt() != null) {
                     categoryObj.addProperty("createdAt", category.getCreatedAt().toString());
                 }
@@ -97,6 +100,7 @@ public class CategoryService {
                 Transaction transaction = hibernateSession.beginTransaction();
                 try {
                     existingCategory.setName(categoryDTO.getName());
+                    existingCategory.setIcon(categoryDTO.getIcon());
                     hibernateSession.merge(existingCategory);
                     transaction.commit();
                     status = true;
