@@ -33,6 +33,14 @@ public class UserController {
         return Response.ok().entity(responseJson).build();
     }
 
+    // Logged-in User Data
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUser(@Context HttpServletRequest request) {
+        String responseJson = new UserService().getUser(request);
+        return Response.ok().entity(responseJson).build();
+    }
+
     // User Update
     @IsLoggedIn
     @PUT

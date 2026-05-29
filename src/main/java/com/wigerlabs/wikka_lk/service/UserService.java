@@ -10,56 +10,11 @@ import com.wigerlabs.wikka_lk.util.HibernateUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.Response;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.util.regex.Pattern;
 
-/**
- * User Service with comprehensive security validation
- * <p>
- * Security Features Implemented:
- * <p>
- * 1. NAME VALIDATION:
- * - Required field validation
- * - Length constraints: 2-100 characters
- * - Character whitelist: only letters, spaces, hyphens, apostrophes
- * - SQL injection prevention
- * - XSS attack prevention
- * <p>
- * 2. EMAIL VALIDATION:
- * - Required field validation
- * - RFC-compliant email format validation
- * - Length constraint: max 254 characters (RFC 5321)
- * - SQL injection prevention
- * <p>
- * 3. PASSWORD VALIDATION:
- * - Required field validation
- * - Length constraints: 8-128 characters
- * - Complexity requirements:
- * * At least one uppercase letter
- * * At least one lowercase letter
- * * At least one digit
- * * At least one special character (@$!%*?&#^()_+=-[]{}|;:',.<>)
- * - Common password detection and blocking
- * <p>
- * 4. ADDRESS VALIDATION:
- * - Required field validation
- * - Length constraint: max 500 characters
- * - SQL injection prevention
- * - XSS attack prevention
- * <p>
- * 5. DESCRIPTION VALIDATION (Optional):
- * - Length constraint: max 500 characters
- * - SQL injection prevention
- * - XSS attack prevention
- * <p>
- * Additional Security Measures:
- * - Pattern-based attack detection and rejection
- * - Whitespace trimming
- * - Comprehensive regex validation
- */
 public class UserService {
 
     // Regex patterns for validation
@@ -268,6 +223,44 @@ public class UserService {
         if (!dataObject.isEmpty()) {
             responseObject.add("data", dataObject);
         }
+
+        return responseObject.toString();
+    }
+
+    public String getUser(@Context HttpServletRequest request) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message;
+        User user = null;
+
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null && httpSession.getAttribute("user") != null) {
+            user = (User) httpSession.getAttribute("user");
+
+            JsonObject userData = new JsonObject();
+            userData.addProperty("id", user.getId());
+            userData.addProperty("name", user.getName());
+            userData.addProperty("email", user.getEmail());
+            userData.addProperty("userRole", user.getUserRole().getName());
+            userData.addProperty("userRoleId", user.getUserRole().getId());
+
+            if (user.getCreatedAt() != null) {
+                userData.addProperty("createdAt", user.getCreatedAt().toString());
+            }
+            if (user.getUpdatedAt() != null) {
+                userData.addProperty("updatedAt", user.getUpdatedAt().toString());
+            }
+
+            status = true;
+            message = "User data fetched successfully!";
+            responseObject.add("data", userData);
+        } else {
+            message = "User not found!";
+            responseObject.add("data", null);
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
 
         return responseObject.toString();
     }
