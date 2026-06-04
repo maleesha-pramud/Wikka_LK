@@ -89,11 +89,11 @@ public class Product extends BaseEntity {
         this.model = model;
     }
 
-    public ProductCondition getCondition() {
+    public ProductCondition getProductCondition() {
         return productCondition;
     }
 
-    public void setCondition(ProductCondition productCondition) {
+    public void setProductCondition(ProductCondition productCondition) {
         this.productCondition = productCondition;
     }
 

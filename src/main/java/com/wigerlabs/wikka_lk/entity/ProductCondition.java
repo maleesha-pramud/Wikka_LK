@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "product_condition")
+@NamedQuery(name="ProductCondition.findById", query = "FROM ProductCondition pr WHERE pr.id=:id")
 public class ProductCondition extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
