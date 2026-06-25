@@ -149,7 +149,7 @@ public class UserService {
                                 "Please verify it for activate your account!";
 
                         AppUtil.sendEmail(newUser.getEmail(), "Account Verification - Wikka.lk",
-                                "<h1>Welcome to Wikka.lk!</h1><p>Your verification code is: <strong>" + verificationCode + "</strong></p>");
+                                AppUtil.getVerificationEmailTemplate(newUser.getName(), verificationCode, newUser.getEmail()));
                     } catch (Exception e) {
                         if (transaction != null) {
                             transaction.rollback();
@@ -408,7 +408,7 @@ public class UserService {
                             message = "Account activated successfully!";
 
                             AppUtil.sendEmail(user.getEmail(), "Account Activated - Wikka.lk",
-                                    "<h1>Account Activated!</h1><p>Your account has been successfully activated. Welcome to Wikka.lk!</p>");
+                                    AppUtil.getActivationSuccessEmailTemplate(user.getName()));
                         } catch (Exception e) {
                             if (transaction != null) {
                                 transaction.rollback();
