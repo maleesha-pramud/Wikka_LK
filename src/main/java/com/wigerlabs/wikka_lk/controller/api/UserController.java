@@ -22,6 +22,17 @@ public class UserController {
         return Response.ok().entity(responseJson).build();
     }
 
+    // User Activation
+    @POST
+    @Path("/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response activateUser(String jsonData) {
+        UserDTO userDTO = AppUtil.GSON.fromJson(jsonData, UserDTO.class);
+        String responseJson = new UserService().activateUser(userDTO);
+        return Response.ok().entity(responseJson).build();
+    }
+
     // User Login
     @POST
     @Path("/login")

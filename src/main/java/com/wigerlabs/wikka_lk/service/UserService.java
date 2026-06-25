@@ -147,6 +147,9 @@ public class UserService {
                         status = true;
                         message = "Account created successfully. Verification code has been sent to the your email. " +
                                 "Please verify it for activate your account!";
+
+                        AppUtil.sendEmail(newUser.getEmail(), "Account Verification - Wikka.lk",
+                                "<h1>Welcome to Wikka.lk!</h1><p>Your verification code is: <strong>" + verificationCode + "</strong></p>");
                     } catch (Exception e) {
                         if (transaction != null) {
                             transaction.rollback();
@@ -365,6 +368,62 @@ public class UserService {
             responseObject.add("data", dataObject);
         }
 
+        return responseObject.toString();
+    }
+
+    public String activateUser(UserDTO userDTO) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+
+        if (userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
+            message = "Email is required.";
+        } else if (userDTO.getVerificationCode() == null || userDTO.getVerificationCode().isBlank()) {
+            message = "Verification code is required.";
+        } else {
+            try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                User user = hibernateSession.createNamedQuery("User.findByEmail", User.class)
+                        .setParameter("email", userDTO.getEmail())
+                        .getSingleResultOrNull();
+
+                if (user == null) {
+                    message = "User not found.";
+                } else if (user.getVerificationCode() == null || !user.getVerificationCode().equals(userDTO.getVerificationCode())) {
+                    message = "Invalid verification code.";
+                } else if (user.getStatus().getValue().equals(Status.Type.ACTIVE.getValue()) || user.getStatus().getValue().equals(Status.Type.VERIFIED.getValue())) {
+                    message = "User is already activated.";
+                } else {
+                    Status activeStatus = hibernateSession.createNamedQuery("Status.findByValue", Status.class)
+                            .setParameter("value", Status.Type.ACTIVE.getValue())
+                            .getSingleResultOrNull();
+
+                    if (activeStatus != null) {
+                        Transaction transaction = hibernateSession.beginTransaction();
+                        try {
+                            user.setStatus(activeStatus);
+                            user.setVerificationCode(null); // Clear the code after successful activation
+                            hibernateSession.merge(user);
+                            transaction.commit();
+                            status = true;
+                            message = "Account activated successfully!";
+
+                            AppUtil.sendEmail(user.getEmail(), "Account Activated - Wikka.lk",
+                                    "<h1>Account Activated!</h1><p>Your account has been successfully activated. Welcome to Wikka.lk!</p>");
+                        } catch (Exception e) {
+                            if (transaction != null) {
+                                transaction.rollback();
+                            }
+                            message = "Error occurred while activating account. " + e.getMessage();
+                        }
+                    } else {
+                        message = "System error: Active status not found.";
+                    }
+                }
+            }
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
         return responseObject.toString();
     }
 
