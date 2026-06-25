@@ -200,23 +200,27 @@ public class UserService {
                         user.getStatus().getValue(); // Ensure lazy loading
                         user.getUserRole().getName(); // Ensure lazy loading
 
-                        HttpSession httpSession = request.getSession();
-                        httpSession.setAttribute("user", user);
+                        if (user.getStatus().getId() == 4) {
+                            message = "Your account has been blocked. You cannot login.";
+                        } else {
+                            HttpSession httpSession = request.getSession();
+                            httpSession.setAttribute("user", user);
 
-                        status = true;
-                        message = "Login successful.";
-                        dataObject.add("user", AppUtil.GSON.toJsonTree(new UserDTO(
-                                user.getId(),
-                                user.getName(),
-                                user.getEmail(),
-                                user.getAddress(),
-                                user.getDescription(),
-                                user.getStatus().getId(),
-                                user.getStatus().getValue(),
-                                user.getUserRole().getId(),
-                                user.getUserRole().getName(),
-                                user.getVerificationCode()
-                        )));
+                            status = true;
+                            message = "Login successful.";
+                            dataObject.add("user", AppUtil.GSON.toJsonTree(new UserDTO(
+                                    user.getId(),
+                                    user.getName(),
+                                    user.getEmail(),
+                                    user.getAddress(),
+                                    user.getDescription(),
+                                    user.getStatus().getId(),
+                                    user.getStatus().getValue(),
+                                    user.getUserRole().getId(),
+                                    user.getUserRole().getName(),
+                                    user.getVerificationCode()
+                            )));
+                        }
                     } else {
                         message = "Incorrect password.";
                     }
