@@ -1,7 +1,9 @@
 package com.wigerlabs.wikka_lk.service;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.wigerlabs.wikka_lk.dto.UserDTO;
+import com.wigerlabs.wikka_lk.entity.Brand;
 import com.wigerlabs.wikka_lk.entity.Status;
 import com.wigerlabs.wikka_lk.entity.User;
 import com.wigerlabs.wikka_lk.entity.UserRole;
@@ -13,6 +15,7 @@ import jakarta.ws.rs.core.Context;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class UserService {
@@ -261,6 +264,39 @@ public class UserService {
 
         responseObject.addProperty("status", status);
         responseObject.addProperty("message", message);
+
+        return responseObject.toString();
+    }
+
+    public String getAllUsers() {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+        JsonArray dataArray = new JsonArray();
+
+        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+            List<User> userList = hibernateSession.createQuery("FROM User", User.class).list();
+            for (User user : userList) {
+                JsonObject userObj = new JsonObject();
+                userObj.addProperty("id", user.getId());
+                userObj.addProperty("name", user.getName());
+                if (user.getCreatedAt() != null) {
+                    userObj.addProperty("createdAt", user.getCreatedAt().toString());
+                }
+                if (user.getUpdatedAt() != null) {
+                    userObj.addProperty("updatedAt", user.getUpdatedAt().toString());
+                }
+                dataArray.add(userObj);
+            }
+            status = true;
+            message = "Users fetched successfully!";
+        } catch (Exception e) {
+            message = "Error occurred while fetching Users. " + e.getMessage();
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        responseObject.add("data", dataArray);
 
         return responseObject.toString();
     }

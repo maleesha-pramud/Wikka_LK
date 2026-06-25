@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "color")
+@NamedQuery(name = "Color.findByName", query = "FROM Color c WHERE c.name=:name")
+@NamedQuery(name = "Color.findById", query = "FROM Color c WHERE c.id=:id")
 public class Color extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -41,6 +41,15 @@ public class UserController {
         return Response.ok().entity(responseJson).build();
     }
 
+    // All User Data
+    @GET
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllUsers() {
+        String responseJson = new UserService().getAllUsers();
+        return Response.ok().entity(responseJson).build();
+    }
+
     // User Update
     @IsLoggedIn
     @PUT

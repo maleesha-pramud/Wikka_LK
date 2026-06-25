@@ -90,45 +90,51 @@ public class ModelService {
         return responseObject.toString();
     }
 
-    public String updateModel(ModelDTO modelDTO) {
+    public String updateModel(HttpServletRequest req, ModelDTO modelDTO) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
         JsonObject dataObject = new JsonObject();
 
-        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
-            Model existingModel = hibernateSession.createNamedQuery("Model.findById", Model.class)
-                    .setParameter("id", modelDTO.getId())
-                    .getSingleResultOrNull();
-            if (existingModel != null) {
-                Brand existingBrand = hibernateSession.createNamedQuery("Brand.findById", Brand.class)
-                        .setParameter("id", modelDTO.getBrandId())
+        String modelIdParam = req.getParameter("id");
+        if (modelIdParam == null || modelIdParam.isBlank()) {
+            message = "Model ID is required!";
+        } else {
+            modelDTO.setId(Integer.parseInt(modelIdParam));
+            try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                Model existingModel = hibernateSession.createNamedQuery("Model.findById", Model.class)
+                        .setParameter("id", modelDTO.getId())
                         .getSingleResultOrNull();
-                if (existingBrand != null) {
-                    Transaction transaction = hibernateSession.beginTransaction();
-                    try {
-                        existingModel.setName(modelDTO.getName().trim());
-                        existingModel.setBrand(existingBrand);
-                        hibernateSession.merge(existingModel);
-                        transaction.commit();
-                        status = true;
-                        message = "Model updated successfully!";
-                        dataObject.addProperty("id", existingModel.getId());
-                        dataObject.addProperty("name", existingModel.getName());
-                        dataObject.addProperty("brandId", existingModel.getBrand().getId());
-                    } catch (Exception e) {
-                        if (transaction != null) {
-                            transaction.rollback();
+                if (existingModel != null) {
+                    Brand existingBrand = hibernateSession.createNamedQuery("Brand.findById", Brand.class)
+                            .setParameter("id", modelDTO.getBrandId())
+                            .getSingleResultOrNull();
+                    if (existingBrand != null) {
+                        Transaction transaction = hibernateSession.beginTransaction();
+                        try {
+                            existingModel.setName(modelDTO.getName().trim());
+                            existingModel.setBrand(existingBrand);
+                            hibernateSession.merge(existingModel);
+                            transaction.commit();
+                            status = true;
+                            message = "Model updated successfully!";
+                            dataObject.addProperty("id", existingModel.getId());
+                            dataObject.addProperty("name", existingModel.getName());
+                            dataObject.addProperty("brandId", existingModel.getBrand().getId());
+                        } catch (Exception e) {
+                            if (transaction != null) {
+                                transaction.rollback();
+                            }
+                            message = "Error occurred while updating model.";
+                        } finally {
+                            hibernateSession.close();
                         }
-                        message = "Error occurred while updating model.";
-                    } finally {
-                        hibernateSession.close();
+                    } else {
+                        message = "Brand not found!";
                     }
                 } else {
-                    message = "Brand not found!";
+                    message = "Model not found!";
                 }
-            } else {
-                message = "Model not found!";
             }
         }
 
@@ -139,12 +145,12 @@ public class ModelService {
         return responseObject.toString();
     }
 
-    public String deleteModel(HttpServletRequest request) {
+    public String deleteModel(HttpServletRequest req) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
 
-        String modelIdParam = request.getParameter("id");
+        String modelIdParam = req.getParameter("id");
         if (modelIdParam == null || modelIdParam.isBlank()) {
             message = "Model ID is required for deletion.";
         } else {

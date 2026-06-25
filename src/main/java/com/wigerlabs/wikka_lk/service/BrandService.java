@@ -139,7 +139,6 @@ public class BrandService {
         } else {
             brandDTO.setId(Integer.parseInt(brandIdParam));
             try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
-                System.out.println("BrandId: " + brandDTO.getId());
                 Brand existingBrand = hibernateSession.createNamedQuery("Brand.findById", Brand.class)
                         .setParameter("id", brandDTO.getId())
                         .getSingleResultOrNull();
