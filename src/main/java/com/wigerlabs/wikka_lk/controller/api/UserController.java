@@ -61,6 +61,18 @@ public class UserController {
         return Response.ok().entity(responseJson).build();
     }
 
+    // Change User Status
+    @IsLoggedIn
+    @PUT
+    @Path("/change-status")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response changeUserStatus(String jsonData) {
+        UserDTO userDTO = AppUtil.GSON.fromJson(jsonData, UserDTO.class);
+        String responseJson = new UserService().changeUserStatus(userDTO);
+        return Response.ok().entity(responseJson).build();
+    }
+
     // User Logout
     @IsLoggedIn
     @Path("/logout")

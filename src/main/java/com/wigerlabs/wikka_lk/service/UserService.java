@@ -280,6 +280,13 @@ public class UserService {
                 JsonObject userObj = new JsonObject();
                 userObj.addProperty("id", user.getId());
                 userObj.addProperty("name", user.getName());
+                userObj.addProperty("email", user.getEmail());
+                userObj.addProperty("address", user.getAddress());
+                userObj.addProperty("description", user.getDescription());
+                userObj.addProperty("status", user.getStatus().getValue());
+                userObj.addProperty("status_id", user.getStatus().getId());
+                userObj.addProperty("user_role", user.getUserRole().getName());
+                userObj.addProperty("user_role_id", user.getUserRole().getId());
                 if (user.getCreatedAt() != null) {
                     userObj.addProperty("createdAt", user.getCreatedAt().toString());
                 }
@@ -358,6 +365,54 @@ public class UserService {
             responseObject.add("data", dataObject);
         }
 
+        return responseObject.toString();
+    }
+
+    public String changeUserStatus(UserDTO userDTO) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+
+        if (userDTO.getId() <= 0) {
+            message = "Valid User ID is required.";
+        } else if (userDTO.getStatusId() <= 0) {
+            message = "Valid Status ID is required.";
+        } else {
+            try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                User user = hibernateSession.createNamedQuery("User.findById", User.class)
+                        .setParameter("id", userDTO.getId())
+                        .getSingleResultOrNull();
+
+                if (user == null) {
+                    message = "User not found.";
+                } else {
+                    Status newStatus = hibernateSession.createNamedQuery("Status.findById", Status.class)
+                            .setParameter("id", userDTO.getStatusId())
+                            .getSingleResultOrNull();
+
+                    if (newStatus == null) {
+                        message = "Invalid status specified.";
+                    } else {
+                        Transaction transaction = hibernateSession.beginTransaction();
+                        try {
+                            user.setStatus(newStatus);
+                            hibernateSession.merge(user);
+                            transaction.commit();
+                            status = true;
+                            message = "User status updated successfully.";
+                        } catch (Exception e) {
+                            if (transaction != null) {
+                                transaction.rollback();
+                            }
+                            message = "Error occurred while updating user status.";
+                        }
+                    }
+                }
+            }
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
         return responseObject.toString();
     }
 
