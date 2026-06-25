@@ -30,9 +30,9 @@ public class BrandController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateBrand(String jsonData) {
+    public Response updateBrand(String jsonData, @Context HttpServletRequest req) {
         BrandDTO brandDTO = AppUtil.GSON.fromJson(jsonData, BrandDTO.class);
-        String responseJson = new BrandService().updateBrand(brandDTO);
+        String responseJson = new BrandService().updateBrand(req, brandDTO);
         return Response.ok().entity(responseJson).build();
     }
 

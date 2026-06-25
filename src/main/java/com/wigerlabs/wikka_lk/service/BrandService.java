@@ -125,16 +125,21 @@ public class BrandService {
         return responseObject.toString();
     }
 
-    public String updateBrand(BrandDTO brandDTO) {
+    public String updateBrand(@Context HttpServletRequest req, BrandDTO brandDTO) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
         JsonObject dataObject = new JsonObject();
 
-        if (brandDTO.getName() == null || brandDTO.getName().isBlank()) {
+        String brandIdParam = req.getParameter("id");
+        if (brandIdParam == null || brandIdParam.isBlank()) {
+            message = "Brand ID is required.";
+        } else if (brandDTO.getName() == null || brandDTO.getName().isBlank()) {
             message = "Brand Name is required.";
         } else {
+            brandDTO.setId(Integer.parseInt(brandIdParam));
             try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                System.out.println("BrandId: " + brandDTO.getId());
                 Brand existingBrand = hibernateSession.createNamedQuery("Brand.findById", Brand.class)
                         .setParameter("id", brandDTO.getId())
                         .getSingleResultOrNull();
@@ -159,7 +164,7 @@ public class BrandService {
                 }
             }
         }
-        
+
         responseObject.addProperty("status", status);
         responseObject.addProperty("message", message);
 
