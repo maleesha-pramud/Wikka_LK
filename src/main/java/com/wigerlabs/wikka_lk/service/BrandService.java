@@ -125,7 +125,7 @@ public class BrandService {
         return responseObject.toString();
     }
 
-    public String updateBrand(@Context HttpServletRequest req, BrandDTO brandDTO) {
+    public String updateBrand(HttpServletRequest req, BrandDTO brandDTO) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
@@ -133,9 +133,9 @@ public class BrandService {
 
         String brandIdParam = req.getParameter("id");
         if (brandIdParam == null || brandIdParam.isBlank()) {
-            message = "Brand ID is required.";
+            message = "Brand ID is required!";
         } else if (brandDTO.getName() == null || brandDTO.getName().isBlank()) {
-            message = "Brand Name is required.";
+            message = "Brand Name is required!";
         } else {
             brandDTO.setId(Integer.parseInt(brandIdParam));
             try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
@@ -171,14 +171,14 @@ public class BrandService {
         return responseObject.toString();
     }
 
-    public String deleteBrand(@Context HttpServletRequest request) {
+    public String deleteBrand(HttpServletRequest req) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
 
-        String brandIdParam = request.getParameter("id");
+        String brandIdParam = req.getParameter("id");
         if (brandIdParam == null || brandIdParam.isBlank()) {
-            message = "Brand ID is required for deletion.";
+            message = "Brand ID is required for deletion!";
         } else {
             try {
                 int brandId = Integer.parseInt(brandIdParam);

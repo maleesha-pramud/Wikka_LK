@@ -6,6 +6,7 @@ import com.wigerlabs.wikka_lk.dto.CategoryDTO;
 import com.wigerlabs.wikka_lk.entity.Category;
 import com.wigerlabs.wikka_lk.util.HibernateUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Context;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -86,34 +87,40 @@ public class CategoryService {
         return responseObject.toString();
     }
 
-    public String updateCategory(CategoryDTO categoryDTO) {
+    public String updateCategory(HttpServletRequest req, CategoryDTO categoryDTO) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
         JsonObject dataObject = new JsonObject();
 
-        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
-            Category existingCategory = hibernateSession.createNamedQuery("Category.findById", Category.class)
-                    .setParameter("id", categoryDTO.getId())
-                    .getSingleResultOrNull();
-            if (existingCategory != null) {
-                Transaction transaction = hibernateSession.beginTransaction();
-                try {
-                    existingCategory.setName(categoryDTO.getName());
-                    existingCategory.setIcon(categoryDTO.getIcon());
-                    hibernateSession.merge(existingCategory);
-                    transaction.commit();
-                    status = true;
-                    message = "Category updated successfully!";
-                    dataObject.addProperty("id", existingCategory.getId());
-                    dataObject.addProperty("name", existingCategory.getName());
-                } catch (Exception e) {
-                    if (transaction != null) {
-                        transaction.rollback();
+        String categoryIdParam = req.getParameter("id");
+        if (categoryIdParam == null || categoryIdParam.isBlank()) {
+            message = "Category ID is required!";
+        } else {
+            categoryDTO.setId(Integer.parseInt(categoryIdParam));
+            try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                Category existingCategory = hibernateSession.createNamedQuery("Category.findById", Category.class)
+                        .setParameter("id", categoryDTO.getId())
+                        .getSingleResultOrNull();
+                if (existingCategory != null) {
+                    Transaction transaction = hibernateSession.beginTransaction();
+                    try {
+                        existingCategory.setName(categoryDTO.getName());
+                        existingCategory.setIcon(categoryDTO.getIcon());
+                        hibernateSession.merge(existingCategory);
+                        transaction.commit();
+                        status = true;
+                        message = "Category updated successfully!";
+                        dataObject.addProperty("id", existingCategory.getId());
+                        dataObject.addProperty("name", existingCategory.getName());
+                    } catch (Exception e) {
+                        if (transaction != null) {
+                            transaction.rollback();
+                        }
+                        message = "Error occurred while updating category. " + e.getMessage();
+                    } finally {
+                        hibernateSession.close();
                     }
-                    message = "Error occurred while updating category. " + e.getMessage();
-                } finally {
-                    hibernateSession.close();
                 }
             }
         }
@@ -125,28 +132,33 @@ public class CategoryService {
         return responseObject.toString();
     }
 
-    public String deleteCategory(HttpServletRequest request) {
+    public String deleteCategory(HttpServletRequest req) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
 
-        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
-            int categoryId = Integer.parseInt(request.getParameter("id"));
-            Category existingCategory = hibernateSession.find(Category.class, categoryId);
-            if (existingCategory != null) {
-                Transaction transaction = hibernateSession.beginTransaction();
-                try {
-                    hibernateSession.remove(existingCategory);
-                    transaction.commit();
-                    status = true;
-                    message = "Category deleted successfully!";
-                } catch (Exception e) {
-                    if (transaction != null) {
-                        transaction.rollback();
+        String categoryIdParam = req.getParameter("id");
+        if (categoryIdParam == null || categoryIdParam.isBlank()) {
+            message = "Category ID is required for deletion!";
+        } else {
+            int categoryId = Integer.parseInt(categoryIdParam);
+            try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                Category existingCategory = hibernateSession.find(Category.class, categoryId);
+                if (existingCategory != null) {
+                    Transaction transaction = hibernateSession.beginTransaction();
+                    try {
+                        hibernateSession.remove(existingCategory);
+                        transaction.commit();
+                        status = true;
+                        message = "Category deleted successfully!";
+                    } catch (Exception e) {
+                        if (transaction != null) {
+                            transaction.rollback();
+                        }
+                        message = "Error occurred while deleting category. " + e.getMessage();
+                    } finally {
+                        hibernateSession.close();
                     }
-                    message = "Error occurred while deleting category. " + e.getMessage();
-                } finally {
-                    hibernateSession.close();
                 }
             }
         }

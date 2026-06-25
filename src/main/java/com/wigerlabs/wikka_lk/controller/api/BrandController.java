@@ -38,8 +38,8 @@ public class BrandController {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteBrand(@Context HttpServletRequest request) {
-        String responseJson = new BrandService().deleteBrand(request);
+    public Response deleteBrand(@Context HttpServletRequest req) {
+        String responseJson = new BrandService().deleteBrand(req);
         return Response.ok().entity(responseJson).build();
     }
 }

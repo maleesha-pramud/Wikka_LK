@@ -30,16 +30,16 @@ public class CategoryController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateCategory(String jsonData) {
+    public Response updateCategory(@Context HttpServletRequest req, String jsonData) {
         CategoryDTO categoryDTO = AppUtil.GSON.fromJson(jsonData, CategoryDTO.class);
-        String responseJson = new CategoryService().updateCategory(categoryDTO);
+        String responseJson = new CategoryService().updateCategory(req, categoryDTO);
         return Response.ok().entity(responseJson).build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteCategory(@Context HttpServletRequest request) {
-        String responseJson = new CategoryService().deleteCategory(request);
+    public Response deleteCategory(@Context HttpServletRequest req) {
+        String responseJson = new CategoryService().deleteCategory(req);
         return Response.ok().entity(responseJson).build();
     }
 }
