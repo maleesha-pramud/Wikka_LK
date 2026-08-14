@@ -313,4 +313,59 @@ public class ProductService {
         responseObject.addProperty("message", message);
         return responseObject.toString();
     }
+
+    public String getProductsBySeller(jakarta.servlet.http.HttpServletRequest req) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+        com.google.gson.JsonArray dataArray = new com.google.gson.JsonArray();
+
+        String userIdParam = req.getParameter("userId");
+        if (userIdParam == null || userIdParam.isBlank()) {
+            message = "User ID is required!";
+        } else {
+            try {
+                int userId = Integer.parseInt(userIdParam);
+                try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+                    java.util.List<Product> productList = hibernateSession.createQuery("FROM Product p WHERE p.user.id = :userId", Product.class)
+                            .setParameter("userId", userId)
+                            .list();
+                    for (Product product : productList) {
+                        JsonObject productObj = new JsonObject();
+                        productObj.addProperty("id", product.getId());
+                        productObj.addProperty("name", product.getName());
+                        productObj.addProperty("basePrice", product.getBasePrice());
+                        productObj.addProperty("description", product.getDescription());
+                        productObj.addProperty("contactNo", product.getContactNo());
+                        productObj.addProperty("modelId", product.getModel().getId());
+                        productObj.addProperty("modelName", product.getModel().getName());
+                        productObj.addProperty("productConditionId", product.getProductCondition().getId());
+                        productObj.addProperty("productConditionName", product.getProductCondition().getName());
+                        productObj.addProperty("categoryId", product.getCategory().getId());
+                        productObj.addProperty("categoryName", product.getCategory().getName());
+                        productObj.addProperty("userId", product.getUser().getId());
+                        productObj.addProperty("userName", product.getUser().getName());
+                        productObj.addProperty("statusId", product.getStatus().getId());
+                        productObj.addProperty("statusValue", product.getStatus().getValue());
+                        if (product.getCreatedAt() != null) {
+                            productObj.addProperty("createdAt", product.getCreatedAt().toString());
+                        }
+                        dataArray.add(productObj);
+                    }
+                    status = true;
+                    message = "Products fetched successfully!";
+                }
+            } catch (NumberFormatException e) {
+                message = "Invalid User ID format.";
+            } catch (Exception e) {
+                message = "Error occurred while fetching products. " + e.getMessage();
+            }
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        responseObject.add("data", dataArray);
+
+        return responseObject.toString();
+    }
 }

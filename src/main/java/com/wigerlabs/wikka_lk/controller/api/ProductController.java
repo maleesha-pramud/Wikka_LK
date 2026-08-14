@@ -65,4 +65,12 @@ public class ProductController {
         String responseJson = new ProductService().deleteProduct(req);
         return Response.ok().entity(responseJson).build();
     }
+
+    @GET
+    @Path("/seller")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProductsBySeller(@jakarta.ws.rs.core.Context jakarta.servlet.http.HttpServletRequest req) {
+        String responseJson = new ProductService().getProductsBySeller(req);
+        return Response.ok().entity(responseJson).build();
+    }
 }
