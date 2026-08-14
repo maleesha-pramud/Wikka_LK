@@ -42,4 +42,12 @@ public class ModelController {
         String responseJson = new ModelService().deleteModel(req);
         return Response.ok().entity(responseJson).build();
     }
+
+    @GET
+    @Path("/brand/{brandId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getModelsByBrand(@PathParam("brandId") int brandId) {
+        String responseJson = new ModelService().getModelsByBrand(brandId);
+        return Response.ok().entity(responseJson).build();
+    }
 }

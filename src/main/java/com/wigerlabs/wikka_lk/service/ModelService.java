@@ -182,4 +182,41 @@ public class ModelService {
         responseObject.addProperty("message", message);
         return responseObject.toString();
     }
+
+    public String getModelsByBrand(int brandId) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+        JsonArray dataArray = new JsonArray();
+
+        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+            List<Model> modelList = hibernateSession.createQuery("FROM Model m WHERE m.brand.id = :brandId", Model.class)
+                    .setParameter("brandId", brandId)
+                    .list();
+            for (Model model : modelList) {
+                JsonObject modelObj = new JsonObject();
+                modelObj.addProperty("id", model.getId());
+                modelObj.addProperty("name", model.getName());
+                modelObj.addProperty("brandId", model.getBrand().getId());
+                modelObj.addProperty("brandName", model.getBrand().getName());
+                if (model.getCreatedAt() != null) {
+                    modelObj.addProperty("createdAt", model.getCreatedAt().toString());
+                }
+                if (model.getUpdatedAt() != null) {
+                    modelObj.addProperty("updatedAt", model.getUpdatedAt().toString());
+                }
+                dataArray.add(modelObj);
+            }
+            status = true;
+            message = "Models fetched successfully!";
+        } catch (Exception e) {
+            message = "Error occurred while fetching models. " + e.getMessage();
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        responseObject.add("data", dataArray);
+
+        return responseObject.toString();
+    }
 }

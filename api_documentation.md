@@ -141,6 +141,12 @@ Manage product models.
 **Description:** Fetch all models.
 **Response:** Returns a JSON object with model data.
 
+### `GET /model/brand/{brandId}`
+**Description:** Fetch all models belonging to a specific brand.
+**Path Parameters:** `brandId` (The ID of the brand)
+**URL Example:** `GET /model/brand/1`
+**Response:** Returns a JSON object containing a `data` array of the brand's models.
+
 ### `PUT /model`
 **Description:** Update an existing model.
 **Headers:** `Content-Type: application/json`
