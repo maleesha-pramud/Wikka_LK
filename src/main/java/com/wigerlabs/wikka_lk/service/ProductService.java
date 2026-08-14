@@ -14,25 +14,15 @@ public class ProductService {
         String message = "";
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
-        Model existingModel = hibernateSession.createNamedQuery("Model.findById", Model.class)
-                .setParameter("id", productDTO.getModelId())
-                .getSingleResultOrNull();
+        Model existingModel = hibernateSession.get(Model.class, productDTO.getModelId());
         if (existingModel != null) {
-            ProductCondition existingProductCondition = hibernateSession.createNamedQuery("ProductCondition.findById", ProductCondition.class)
-                    .setParameter("id", productDTO.getProductConditionId())
-                    .getSingleResultOrNull();
+            ProductCondition existingProductCondition = hibernateSession.get(ProductCondition.class, productDTO.getProductConditionId());
             if (existingProductCondition != null) {
-                Category existingCategory = hibernateSession.createNamedQuery("Category.findById", Category.class)
-                        .setParameter("id", productDTO.getCategoryId())
-                        .getSingleResultOrNull();
+                Category existingCategory = hibernateSession.get(Category.class, productDTO.getCategoryId());
                 if (existingCategory != null) {
-                    User existingUser = hibernateSession.createNamedQuery("User.findById", User.class)
-                            .setParameter("id", productDTO.getUserId())
-                            .getSingleResultOrNull();
+                    User existingUser = hibernateSession.get(User.class, productDTO.getUserId());
                     if (existingUser != null) {
-                        Status existingStatus = hibernateSession.createNamedQuery("Status.findById", Status.class)
-                                .setParameter("id", productDTO.getStatusId())
-                                .getSingleResultOrNull();
+                        Status existingStatus = hibernateSession.get(Status.class, productDTO.getStatusId());
                         if (existingStatus != null) {
                             Product newProduct = new Product();
                             newProduct.setName(productDTO.getName());
@@ -60,19 +50,19 @@ public class ProductService {
                                 hibernateSession.close();
                             }
                         } else {
-                            message = "Selected Status not found!";
+                            message = "Selected Status not found! (ID: " + productDTO.getStatusId() + ")";
                         }
                     } else {
-                        message = "Selected User not found!";
+                        message = "Selected User not found! (ID: " + productDTO.getUserId() + ")";
                     }
                 } else {
-                    message = "Selected Category not found!";
+                    message = "Selected Category not found! (ID: " + productDTO.getCategoryId() + ")";
                 }
             } else {
-                message = "Selected Product Condition not found!";
+                message = "Selected Product Condition not found! (ID: " + productDTO.getProductConditionId() + ")";
             }
         } else {
-            message = "Selected Model not found!";
+            message = "Selected Model not found! (ID: " + productDTO.getModelId() + ")";
         }
 
         responseObject.addProperty("status", status);

@@ -322,9 +322,36 @@ Manage user authentication and profiles.
 
 Manage product conditions (e.g., Brand New, Used).
 
+### `POST /product-condition`
+**Description:** Add a new product condition.
+**Headers:** `Content-Type: application/json`
+**Body:**
+```json
+{
+  "name": "Brand New"
+}
+```
+
 ### `GET /product-condition`
 **Description:** Fetch all product conditions.
 **Response:** Returns a JSON object containing a `data` array of product conditions.
+
+### `PUT /product-condition`
+**Description:** Update an existing product condition.
+**Headers:** `Content-Type: application/json`
+**Query Parameters:** `id`
+**URL Example:** `PUT /product-condition?id=1`
+**Body:**
+```json
+{
+  "name": "Used - Like New"
+}
+```
+
+### `DELETE /product-condition`
+**Description:** Delete a product condition.
+**Query Parameters:** `id`
+**URL Example:** `DELETE /product-condition?id=1`
 
 ---
 
