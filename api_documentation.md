@@ -172,7 +172,7 @@ Manage product models.
 Manage products.
 
 ### `POST /product`
-**Description:** Add a new product.
+**Description:** Create a new product.
 **Headers:** `Content-Type: application/json`
 **Body:**
 ```json
@@ -188,6 +188,7 @@ Manage products.
   "statusId": 1
 }
 ```
+**Response:** Returns a JSON object with the generated product ID in the `data` object (e.g., `{"status":true, "message":"...", "data":{"id":12}}`).
 
 ### `GET /product/all`
 **Description:** Fetch all products.
@@ -239,6 +240,26 @@ Manage products.
 **Description:** Delete a product.
 **Query Parameters:** `id`
 **URL Example:** `DELETE /product/delete?id=10`
+
+### `POST /product/{id}/image`
+**Description:** Upload an image for a specific product. The first image uploaded will automatically become the main/primary image.
+**Headers:** `Content-Type: multipart/form-data`
+**Path Parameters:** `id` (The ID of the product)
+**Form Data:** `file` (The image file)
+**URL Example:** `POST /product/1/image`
+**Response:** Returns a JSON object with the saved image details.
+
+### `PUT /product/{id}/image/{imageId}/main`
+**Description:** Set an existing product image as the main/primary image.
+**Path Parameters:** `id` (The ID of the product), `imageId` (The ID of the image)
+**URL Example:** `PUT /product/1/image/5/main`
+**Response:** Returns success message if updated.
+
+### `DELETE /product/{id}/image/{imageId}`
+**Description:** Delete a specific image from a product. If you delete the main image, another image (if any) will automatically be set as the main image.
+**Path Parameters:** `id` (The ID of the product), `imageId` (The ID of the image)
+**URL Example:** `DELETE /product/1/image/5`
+**Response:** Returns success message if deleted.
 
 ---
 

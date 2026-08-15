@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.wigerlabs.wikka_lk.dto.ProductDTO;
 import com.wigerlabs.wikka_lk.entity.*;
 import com.wigerlabs.wikka_lk.util.HibernateUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -12,6 +13,7 @@ public class ProductService {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
+        JsonObject dataObj = new JsonObject();
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
         Model existingModel = hibernateSession.get(Model.class, productDTO.getModelId());
@@ -41,11 +43,12 @@ public class ProductService {
                                 transaction.commit();
                                 status = true;
                                 message = "Product added successfully!";
+                                dataObj.addProperty("id", newProduct.getId());
                             } catch (Exception e) {
                                 if (transaction != null) {
                                     transaction.rollback();
                                 }
-                                message = "Error occurred while adding product.";
+                                message = "Error occurred while adding product. " + e.getMessage();
                             } finally {
                                 hibernateSession.close();
                             }
@@ -67,6 +70,9 @@ public class ProductService {
 
         responseObject.addProperty("status", status);
         responseObject.addProperty("message", message);
+        if (status) {
+            responseObject.add("data", dataObj);
+        }
         return responseObject.toString();
     }
 
@@ -98,6 +104,7 @@ public class ProductService {
                 if (product.getCreatedAt() != null) {
                     productObj.addProperty("createdAt", product.getCreatedAt().toString());
                 }
+                appendImagesToProductObj(hibernateSession, product, productObj);
                 dataArray.add(productObj);
             }
             status = true;
@@ -113,7 +120,7 @@ public class ProductService {
         return responseObject.toString();
     }
 
-    public String changeProductStatus(ProductDTO productDTO) {
+    public String changeProductStatus(HttpServletRequest req, ProductDTO productDTO) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
@@ -340,6 +347,7 @@ public class ProductService {
                         if (product.getCreatedAt() != null) {
                             productObj.addProperty("createdAt", product.getCreatedAt().toString());
                         }
+                        appendImagesToProductObj(hibernateSession, product, productObj);
                         dataArray.add(productObj);
                     }
                     status = true;
@@ -356,6 +364,181 @@ public class ProductService {
         responseObject.addProperty("message", message);
         responseObject.add("data", dataArray);
 
+        return responseObject.toString();
+    }
+
+    private void appendImagesToProductObj(Session session, Product product, JsonObject productObj) {
+        java.util.List<ProductImages> imagesList = session.createQuery("FROM ProductImages p WHERE p.product.id = :pid ORDER BY p.position ASC", ProductImages.class)
+                .setParameter("pid", product.getId())
+                .list();
+        com.google.gson.JsonArray imagesArray = new com.google.gson.JsonArray();
+        for (ProductImages pi : imagesList) {
+            JsonObject imgObj = new JsonObject();
+            imgObj.addProperty("id", pi.getId());
+            imgObj.addProperty("url", pi.getImageUrl());
+            imgObj.addProperty("isPrimary", pi.isPrimary());
+            imagesArray.add(imgObj);
+        }
+        productObj.add("images", imagesArray);
+    }
+
+    public String uploadImage(int productId, java.io.InputStream fileInputStream, org.glassfish.jersey.media.multipart.FormDataContentDisposition fileMetaData, jakarta.servlet.http.HttpServletRequest req) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+        JsonObject dataObj = new JsonObject();
+
+        if (fileInputStream == null || fileMetaData == null) {
+            message = "File is missing!";
+            responseObject.addProperty("status", false);
+            responseObject.addProperty("message", message);
+            return responseObject.toString();
+        }
+
+        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+            Product existingProduct = hibernateSession.get(Product.class, productId);
+            if (existingProduct != null) {
+                String uploadsDir = req.getServletContext().getRealPath("/") + "uploads/products/";
+                java.io.File uploadDirFile = new java.io.File(uploadsDir);
+                if (!uploadDirFile.exists()) uploadDirFile.mkdirs();
+
+                String ext = fileMetaData.getFileName().substring(fileMetaData.getFileName().lastIndexOf("."));
+                String fileName = java.util.UUID.randomUUID().toString() + ext;
+                String filePath = uploadsDir + fileName;
+                String dbFilePath = "uploads/products/" + fileName;
+
+                java.nio.file.Files.copy(fileInputStream, java.nio.file.Paths.get(filePath), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+                Transaction transaction = hibernateSession.beginTransaction();
+                try {
+                    // Temporary schema fix: The product_variant_id column was left over from a previous schema and is NOT NULL by default. 
+                    // This alters it to allow NULLs so that new inserts succeed.
+                    try {
+                        hibernateSession.createNativeMutationQuery("ALTER TABLE product_images MODIFY product_variant_id INT NULL").executeUpdate();
+                    } catch (Exception ignored) {
+                    }
+
+                    Long count = hibernateSession.createQuery("SELECT count(p) FROM ProductImages p WHERE p.product.id = :pid", Long.class)
+                            .setParameter("pid", productId).uniqueResult();
+
+                    ProductImages newImage = new ProductImages();
+                    newImage.setProduct(existingProduct);
+                    newImage.setImageUrl(dbFilePath);
+                    newImage.setPrimary(count == 0);
+                    newImage.setPosition(count.intValue());
+
+                    hibernateSession.persist(newImage);
+                    transaction.commit();
+                    status = true;
+                    message = "Image uploaded successfully!";
+                    dataObj.addProperty("id", newImage.getId());
+                    dataObj.addProperty("url", newImage.getImageUrl());
+                    dataObj.addProperty("isPrimary", newImage.isPrimary());
+                } catch (Exception e) {
+                    if (transaction != null) transaction.rollback();
+                    message = "Database error while saving image details: " + e.getMessage();
+                }
+            } else {
+                message = "Product not found!";
+            }
+        } catch (Exception e) {
+            message = "Error uploading image: " + e.getMessage();
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        responseObject.add("data", dataObj);
+        return responseObject.toString();
+    }
+
+    public String setMainImage(int productId, int imageId) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+
+        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+            Product existingProduct = hibernateSession.get(Product.class, productId);
+            if (existingProduct != null) {
+                ProductImages targetImage = hibernateSession.get(ProductImages.class, imageId);
+                if (targetImage != null && targetImage.getProduct().getId() == productId) {
+                    Transaction transaction = hibernateSession.beginTransaction();
+                    try {
+                        hibernateSession.createMutationQuery("UPDATE ProductImages p SET p.isPrimary = false WHERE p.product.id = :pid")
+                                .setParameter("pid", productId)
+                                .executeUpdate();
+                        targetImage.setPrimary(true);
+                        hibernateSession.merge(targetImage);
+                        transaction.commit();
+                        status = true;
+                        message = "Main image updated successfully!";
+                    } catch (Exception e) {
+                        if (transaction != null) transaction.rollback();
+                        message = "Error updating main image: " + e.getMessage();
+                    }
+                } else {
+                    message = "Image not found for this product!";
+                }
+            } else {
+                message = "Product not found!";
+            }
+        } catch (Exception e) {
+            message = "Server error: " + e.getMessage();
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
+        return responseObject.toString();
+    }
+
+    public String deleteImage(int productId, int imageId, jakarta.servlet.http.HttpServletRequest req) {
+        JsonObject responseObject = new JsonObject();
+        boolean status = false;
+        String message = "";
+
+        try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
+            ProductImages targetImage = hibernateSession.get(ProductImages.class, imageId);
+            if (targetImage != null && targetImage.getProduct().getId() == productId) {
+                Transaction transaction = hibernateSession.beginTransaction();
+                try {
+                    // Try to delete physical file
+                    String filePath = req.getServletContext().getRealPath("/") + targetImage.getImageUrl();
+                    java.io.File file = new java.io.File(filePath);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+
+                    boolean wasPrimary = targetImage.isPrimary();
+                    hibernateSession.remove(targetImage);
+                    
+                    if (wasPrimary) {
+                        // Set another image as primary if exists
+                        java.util.List<ProductImages> remaining = hibernateSession.createQuery("FROM ProductImages p WHERE p.product.id = :pid ORDER BY p.position ASC", ProductImages.class)
+                                .setParameter("pid", productId)
+                                .setMaxResults(1)
+                                .list();
+                        if (!remaining.isEmpty()) {
+                            ProductImages newPrimary = remaining.get(0);
+                            newPrimary.setPrimary(true);
+                            hibernateSession.merge(newPrimary);
+                        }
+                    }
+
+                    transaction.commit();
+                    status = true;
+                    message = "Image deleted successfully!";
+                } catch (Exception e) {
+                    if (transaction != null) transaction.rollback();
+                    message = "Error deleting image: " + e.getMessage();
+                }
+            } else {
+                message = "Image not found for this product!";
+            }
+        } catch (Exception e) {
+            message = "Server error: " + e.getMessage();
+        }
+
+        responseObject.addProperty("status", status);
+        responseObject.addProperty("message", message);
         return responseObject.toString();
     }
 }

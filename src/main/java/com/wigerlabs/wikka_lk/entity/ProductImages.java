@@ -9,9 +9,9 @@ public class ProductImages extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_variant_id", nullable = false)
-    private ProductVariant productVariant;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
@@ -30,12 +30,12 @@ public class ProductImages extends BaseEntity {
         this.id = id;
     }
 
-    public ProductVariant getProductVariant() {
-        return productVariant;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductVariant(ProductVariant productVariant) {
-        this.productVariant = productVariant;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public String getImageUrl() {
