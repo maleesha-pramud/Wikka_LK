@@ -192,18 +192,19 @@ Manage products.
 
 ### `GET /product/all`
 **Description:** Fetch all products.
-**Response:** Returns a JSON object with product data.
+**Response:** Returns a JSON object with product data. Each product includes an `images` array containing its associated images.
 
 ### `GET /product/seller`
 **Description:** Fetch all products for a specific seller (user).
 **Query Parameters:** `userId` (The ID of the user/seller)
 **URL Example:** `GET /product/seller?userId=1`
-**Response:** Returns a JSON object containing a `data` array of the seller's products.
+**Response:** Returns a JSON object containing a `data` array of the seller's products. Each product includes an `images` array.
 
-### `GET /product/`
+### `GET /product`
 **Description:** View a specific product's details.
-**Query Parameters:** `id` (or similar identifier depending on implementation)
-**URL Example:** `GET /product/?id=10`
+**Query Parameters:** `id` (The ID of the product)
+**URL Example:** `GET /product?id=10`
+**Response:** Returns a JSON object with product data, including an `images` array containing its associated images.
 
 ### `PUT /product/update`
 **Description:** Update an existing product.
@@ -383,3 +384,15 @@ Check API Health.
 ### `GET /test`
 **Description:** A simple health check to verify the API is reachable.
 **Response:** `{"status": true}`
+
+---
+
+## 9. Uploads API
+
+Serve static files that have been uploaded to the backend.
+
+### `GET /uploads/{folder}/{filename}`
+**Description:** Access an uploaded static file.
+**Path Parameters:** `folder` (e.g., `products`), `filename` (e.g., `d7f45527-6e34-490d-a5d7-954618ac286b.webp`)
+**URL Example:** `GET /uploads/products/d7f45527-6e34-490d-a5d7-954618ac286b.webp`
+**Response:** Returns the requested file directly with the appropriate MIME type (e.g., `image/webp`, `image/jpeg`).

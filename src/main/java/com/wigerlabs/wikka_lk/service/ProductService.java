@@ -93,6 +93,8 @@ public class ProductService {
                 productObj.addProperty("contactNo", product.getContactNo());
                 productObj.addProperty("modelId", product.getModel().getId());
                 productObj.addProperty("modelName", product.getModel().getName());
+                productObj.addProperty("brandId", product.getModel().getBrand().getId());
+                productObj.addProperty("brandName", product.getModel().getBrand().getName());
                 productObj.addProperty("productConditionId", product.getProductCondition().getId());
                 productObj.addProperty("productConditionName", product.getProductCondition().getName());
                 productObj.addProperty("categoryId", product.getCategory().getId());
@@ -187,6 +189,8 @@ public class ProductService {
                         productObj.addProperty("contactNo", product.getContactNo());
                         productObj.addProperty("modelId", product.getModel().getId());
                         productObj.addProperty("modelName", product.getModel().getName());
+                        productObj.addProperty("brandId", product.getModel().getBrand().getId());
+                        productObj.addProperty("brandName", product.getModel().getBrand().getName());
                         productObj.addProperty("productConditionId", product.getProductCondition().getId());
                         productObj.addProperty("productConditionName", product.getProductCondition().getName());
                         productObj.addProperty("categoryId", product.getCategory().getId());
@@ -357,6 +361,8 @@ public class ProductService {
                         productObj.addProperty("contactNo", product.getContactNo());
                         productObj.addProperty("modelId", product.getModel().getId());
                         productObj.addProperty("modelName", product.getModel().getName());
+                        productObj.addProperty("brandId", product.getModel().getBrand().getId());
+                        productObj.addProperty("brandName", product.getModel().getBrand().getName());
                         productObj.addProperty("productConditionId", product.getProductCondition().getId());
                         productObj.addProperty("productConditionName", product.getProductCondition().getName());
                         productObj.addProperty("categoryId", product.getCategory().getId());
