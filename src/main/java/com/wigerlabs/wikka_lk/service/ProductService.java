@@ -198,6 +198,7 @@ public class ProductService {
                         if (product.getCreatedAt() != null) {
                             productObj.addProperty("createdAt", product.getCreatedAt().toString());
                         }
+                        appendImagesToProductObj(hibernateSession, product, productObj);
                         status = true;
                         message = "Product fetched successfully!";
                         responseObject.add("data", productObj);
