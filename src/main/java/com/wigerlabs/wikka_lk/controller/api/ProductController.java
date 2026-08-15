@@ -68,7 +68,6 @@ public class ProductController {
     }
 
     @GET
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Response viewProduct(@Context HttpServletRequest req) {
         String responseJson = new ProductService().viewProduct(req);
