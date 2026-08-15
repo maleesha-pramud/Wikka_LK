@@ -289,13 +289,33 @@ public class ProductService {
                     if (existingProduct != null) {
                         Transaction transaction = hibernateSession.beginTransaction();
                         try {
+                            java.util.List<ProductImages> images = hibernateSession.createQuery("FROM ProductImages WHERE product.id = :pid", ProductImages.class)
+                                    .setParameter("pid", productId)
+                                    .list();
+                            
+                            for (ProductImages img : images) {
+                                String filePath = req.getServletContext().getRealPath("/") + img.getImageUrl();
+                                java.io.File file = new java.io.File(filePath);
+                                if (file.exists()) {
+                                    file.delete();
+                                }
+                                hibernateSession.remove(img);
+                            }
+
                             hibernateSession.remove(existingProduct);
                             transaction.commit();
                             status = true;
                             message = "Product deleted successfully!";
                         } catch (Exception e) {
                             if (transaction != null) transaction.rollback();
-                            message = "Error occurred while deleting product. " + e.getMessage();
+                            
+                            Throwable cause = e.getCause();
+                            String detail = e.getMessage();
+                            while (cause != null) {
+                                detail += " -> " + cause.getMessage();
+                                cause = cause.getCause();
+                            }
+                            message = "Error occurred while deleting product. " + detail;
                         }
                     } else {
                         message = "Product not found.";
