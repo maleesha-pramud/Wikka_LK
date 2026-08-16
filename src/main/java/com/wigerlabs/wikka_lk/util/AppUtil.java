@@ -16,6 +16,21 @@ public class AppUtil {
         return String.format("%6d", randomNumber);
     }
 
+    public static String getMd5(String input) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            java.math.BigInteger no = new java.math.BigInteger(1, messageDigest);
+            String hashtext = no.toString(16);
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            return hashtext.toUpperCase();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String getVerificationEmailTemplate(String name, String verificationCode, String email) {
         String activationLink = FRONTEND_BASE_URL + "activate?email=" + email + "&code=" + verificationCode;
         return "<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;\">" +
@@ -63,9 +78,15 @@ public class AppUtil {
                 payload.addProperty("subject", subject);
                 payload.addProperty("html", htmlContent);
 
+                String resendApiKey = System.getenv("RESEND_API_KEY");
+                if (resendApiKey == null || resendApiKey.isEmpty()) {
+                    System.err.println("RESEND_API_KEY environment variable is not set. Email not sent.");
+                    return;
+                }
+
                 java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                         .uri(java.net.URI.create("https://api.resend.com/emails"))
-                        .header("Authorization", "Bearer re_bUHXUpKS_6wGxGAR55PjjDUnY4tmM1v9D")
+                        .header("Authorization", "Bearer " + resendApiKey)
                         .header("Content-Type", "application/json")
                         .POST(java.net.http.HttpRequest.BodyPublishers.ofString(payload.toString()))
                         .build();

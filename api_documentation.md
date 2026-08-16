@@ -396,3 +396,25 @@ Serve static files that have been uploaded to the backend.
 **Path Parameters:** `folder` (e.g., `products`), `filename` (e.g., `d7f45527-6e34-490d-a5d7-954618ac286b.webp`)
 **URL Example:** `GET /uploads/products/d7f45527-6e34-490d-a5d7-954618ac286b.webp`
 **Response:** Returns the requested file directly with the appropriate MIME type (e.g., `image/webp`, `image/jpeg`).
+
+---
+
+## 10. Checkout API (PayHere)
+
+Manage payment hash generation and webhook notifications.
+
+### `POST /checkout/hash`
+**Description:** Generate a secure MD5 hash required to initialize the PayHere checkout window.
+**Headers:** `Content-Type: application/json`
+**Body:**
+```json
+{
+  "orderId": 12
+}
+```
+**Response:** Returns a JSON object containing the formatted `amount`, `currency`, `hash`, and `merchantId` required by PayHere.js.
+
+### `POST /checkout/notify`
+**Description:** PayHere Server-to-Server Webhook. PayHere calls this endpoint automatically in the background when a payment succeeds or fails to update the backend database.
+**Headers:** `Content-Type: application/x-www-form-urlencoded`
+**Response:** Returns `200 OK` (Consumed silently by PayHere servers).
