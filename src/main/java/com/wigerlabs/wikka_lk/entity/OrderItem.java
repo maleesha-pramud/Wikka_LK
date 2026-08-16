@@ -14,8 +14,8 @@ public class OrderItem extends BaseEntity {
     private Order order;
 
     @ManyToOne
-    @JoinColumn(name = "product_variant_id", nullable = false)
-    private ProductVariant productVariant;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(name = "qty", nullable = false)
     private int qty;
@@ -39,12 +39,12 @@ public class OrderItem extends BaseEntity {
         this.order = order;
     }
 
-    public ProductVariant getProductVariant() {
-        return productVariant;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductVariant(ProductVariant productVariant) {
-        this.productVariant = productVariant;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public int getQty() {

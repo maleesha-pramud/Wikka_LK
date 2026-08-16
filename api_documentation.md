@@ -418,3 +418,32 @@ Manage payment hash generation and webhook notifications.
 **Description:** PayHere Server-to-Server Webhook. PayHere calls this endpoint automatically in the background when a payment succeeds or fails to update the backend database.
 **Headers:** `Content-Type: application/x-www-form-urlencoded`
 **Response:** Returns `200 OK` (Consumed silently by PayHere servers).
+
+---
+
+## 11. Order API
+
+Manage placing and retrieving orders.
+
+### `POST /order`
+**Description:** Place a new order. Call this before launching the PayHere checkout window to create the database order and receive a real `orderId`.
+**Headers:** `Content-Type: application/json`
+**Body:**
+```json
+{
+  "userId": 1,
+  "shippingAddress": "123 Main St, Colombo",
+  "shippingMethodId": 1,
+  "items": [
+    { "productId": 1, "qty": 1 },
+    { "productId": 4, "qty": 2 }
+  ]
+}
+```
+**Response:** Returns a JSON object with the auto-generated `orderId` in the `data` object. Use this ID to request the PayHere hash in `/checkout/hash`.
+
+### `GET /order/buyer`
+**Description:** Get a list of all orders placed by a specific buyer.
+**Query Parameters:** `userId` (The ID of the buyer)
+**URL Example:** `GET /order/buyer?userId=1`
+**Response:** Returns a JSON object with a `data` array containing the user's orders, order status, and all associated items.

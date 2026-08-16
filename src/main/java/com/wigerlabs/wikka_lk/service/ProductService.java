@@ -425,7 +425,11 @@ public class ProductService {
         try (Session hibernateSession = HibernateUtil.getSessionFactory().openSession()) {
             Product existingProduct = hibernateSession.get(Product.class, productId);
             if (existingProduct != null) {
-                String uploadsDir = req.getServletContext().getRealPath("/") + "uploads/products/";
+                String basePath = req.getServletContext().getRealPath("/");
+                if (basePath == null) {
+                    basePath = System.getProperty("user.dir") + java.io.File.separator;
+                }
+                String uploadsDir = basePath + "uploads/products/";
                 java.io.File uploadDirFile = new java.io.File(uploadsDir);
                 if (!uploadDirFile.exists()) uploadDirFile.mkdirs();
 
@@ -438,13 +442,6 @@ public class ProductService {
 
                 Transaction transaction = hibernateSession.beginTransaction();
                 try {
-                    // Temporary schema fix: The product_variant_id column was left over from a previous schema and is NOT NULL by default. 
-                    // This alters it to allow NULLs so that new inserts succeed.
-                    try {
-                        hibernateSession.createNativeMutationQuery("ALTER TABLE product_images MODIFY product_variant_id INT NULL").executeUpdate();
-                    } catch (Exception ignored) {
-                    }
-
                     Long count = hibernateSession.createQuery("SELECT count(p) FROM ProductImages p WHERE p.product.id = :pid", Long.class)
                             .setParameter("pid", productId).uniqueResult();
 

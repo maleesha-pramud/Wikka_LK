@@ -22,6 +22,9 @@ public class ProductImages extends BaseEntity {
     @Column(name = "position", nullable = false)
     private int position;
 
+    @Column(name = "product_variant_id")
+    private Integer productVariantId = 0; // Dummy value to bypass legacy MySQL NOT NULL constraint
+
     public int getId() {
         return id;
     }

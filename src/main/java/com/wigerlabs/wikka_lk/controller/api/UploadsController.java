@@ -17,7 +17,11 @@ public class UploadsController {
             @PathParam("filename") String filename,
             @Context jakarta.servlet.http.HttpServletRequest req) {
 
-        String filePath = req.getServletContext().getRealPath("/") + "uploads/" + folder + "/" + filename;
+        String basePath = req.getServletContext().getRealPath("/");
+        if (basePath == null) {
+            basePath = System.getProperty("user.dir") + File.separator;
+        }
+        String filePath = basePath + "uploads/" + folder + "/" + filename;
         File file = new File(filePath);
 
         if (file.exists() && !file.isDirectory()) {
