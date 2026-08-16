@@ -17,7 +17,7 @@ public class CheckoutService {
     public static final String MERCHANT_SECRET = "MzI2MTAyMzMwODExMjkxMDI3OTU0MTE5MDQ5NjE5MTMzNzgxNjAzMg=="; // Replace with your merchant secret
     public static final String CURRENCY = AppUtil.MAIN_APP_CURRENCY;
 
-    public String generateHash(String orderIdParam) {
+    public String generateHash(String orderIdParam, com.google.gson.JsonArray itemsArray) {
         JsonObject responseObject = new JsonObject();
         boolean status = false;
         String message = "";
@@ -38,6 +38,25 @@ public class CheckoutService {
             if (order != null) {
                 amount = order.getTotalAmount();
                 validOrderFound = true;
+            } else if (itemsArray != null && itemsArray.size() > 0) {
+                // Calculate amount dynamically from the items array
+                for (com.google.gson.JsonElement element : itemsArray) {
+                    JsonObject itemObj = element.getAsJsonObject();
+                    if (itemObj.has("productId") && itemObj.has("qty")) {
+                        int productId = itemObj.get("productId").getAsInt();
+                        int qty = itemObj.get("qty").getAsInt();
+                        com.wigerlabs.wikka_lk.entity.Product product = hibernateSession.get(com.wigerlabs.wikka_lk.entity.Product.class, productId);
+                        if (product != null) {
+                            amount += (product.getBasePrice() * qty);
+                        }
+                    }
+                }
+                
+                if (amount > 0) {
+                    validOrderFound = true;
+                } else {
+                    message = "Could not calculate amount. Invalid products or zero quantity.";
+                }
             } else if (orderIdParam.startsWith("ORD-")) {
                 // Mock test fallback so the frontend developer can test the checkout window
                 amount = 1500.00;

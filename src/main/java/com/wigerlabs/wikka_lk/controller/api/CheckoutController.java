@@ -27,7 +27,12 @@ public class CheckoutController {
 
             String orderIdStr = jsonObject.get("orderId").getAsString();
             
-            String responseJson = new CheckoutService().generateHash(orderIdStr);
+            com.google.gson.JsonArray itemsArray = new com.google.gson.JsonArray();
+            if (jsonObject.has("items")) {
+                itemsArray = jsonObject.getAsJsonArray("items");
+            }
+            
+            String responseJson = new CheckoutService().generateHash(orderIdStr, itemsArray);
             return Response.ok().entity(responseJson).build();
         } catch (Exception e) {
             JsonObject error = new JsonObject();
